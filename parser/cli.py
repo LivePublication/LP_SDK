@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import click
@@ -7,29 +6,30 @@ import pathlib
 from parser.crate import get_crates
 from parser import prospective as _prospective
 
+
 @click.group()
 def cli():
     pass
 
 
 @cli.command()
-@click.option('-i', '--input',
+@click.option('-i', '--input', 'input_path',
               type=click.Path(exists=True, file_okay=True, dir_okay=False, path_type=Path),
               help='Input WEP')
-@click.option('-o', '--output',
+@click.option('-o', '--output', 'output_path',
               type=click.Path(exists=False, file_okay=True, dir_okay=False, path_type=Path),
               help='Output ROCrate')
-def prospective(input, output):
+def prospective(input_path, output_path):
     """
     Very basic example of crate generation from WEP - nothing here is correct, everything will change
-    :param input:
-    :param output:
+    :param input_path:
+    :param output_path:
     :return:
     """
-    data = _prospective.load_wep(input)
-    result = _prospective.parse_wep_to_rocrate(data)
-    assert _prospective.validate_rocrate(result)
-    _prospective.write_rocrate(result, output)
+    wep_json = _prospective.load_wep(input_path)
+    rocrate_json = _prospective.parse_wep_to_rocrate(wep_json)
+    assert _prospective.validate_rocrate(rocrate_json)
+    _prospective.write_rocrate(rocrate_json, output_path)
 
 
 @cli.command()
