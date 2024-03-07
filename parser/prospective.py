@@ -57,6 +57,9 @@ def validate_rocrate(data: dict) -> bool:
 
 def write_rocrate(data: dict, path: Path) -> bool:
     assert not path.exists(), f"Output path {path} already exists"
-    raise NotImplementedError()
+    assert path.match('*.json'), "Expected output to be .json"
 
-    return False
+    with open(path, 'w+') as f:
+        json.dump(data, f, indent=2)
+
+    return True
