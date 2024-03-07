@@ -5,12 +5,13 @@ from pathlib import Path
 from click.testing import CliRunner
 
 from parser.cli import prospective
-from root import ROOT_DIR
+
+TEST_DIR = Path(__file__).parent
 
 
 def test_prospective():
     runner = CliRunner()
-    in_file = ROOT_DIR / 'tests' / 'data' / 'WEP.json'
+    in_file = TEST_DIR / 'data' / 'WEP.json'
     assert in_file.exists()
     with open(in_file) as f:
         wep = json.load(f)
