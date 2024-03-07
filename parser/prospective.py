@@ -13,7 +13,28 @@ def load_wep(path: Path) -> dict:
 
 
 def parse_wep_to_rocrate(wep: dict) -> dict:
-    raise NotImplementedError()
+    # Not sure where these come from, yet:
+    basics = {
+        '@context': 'https://w3id.org/ro/crate/1.1/context',
+        '@graph': []
+    }
+
+    for key, value in wep['States'].items():
+        item = {
+            '@id': key,
+            '@type': ["File", "SoftwareSourceCode", "ComputationalWorkflow", "HowTo"],
+            'input': [
+                {'@id': _input}
+                for _input in value.get('Parameters', []) if isinstance(_input, str)
+            ],
+            'output': [
+                {'@id': value['ResultPath']}
+            ]
+        }
+
+        basics['@graph'].append(item)
+
+    return basics
 
 
 def validate_rocrate(data: dict) -> bool:
