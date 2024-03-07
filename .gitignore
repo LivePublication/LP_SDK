@@ -161,3 +161,8 @@ cython_debug/
 
 # Input data
 input/
+
+# Working Env
+cli/
+.DS_Store
+test.json
