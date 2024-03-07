@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-import sys
 
 
 def load_wep(path: Path) -> dict:

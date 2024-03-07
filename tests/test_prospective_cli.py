@@ -20,7 +20,7 @@ def test_prospective():
         out_file = Path(d) / 'ro_crate_metadata.json'
         assert not out_file.exists()
 
-        # subprocess.call(f'lp-parser prospective -i {in_file} -o {out_file}')
+        # Equivelant to command line: lp-parser prospective -i in_file -o out_file
         runner.invoke(prospective, ['-i', in_file, '-o', out_file])
         assert out_file.exists()
 
