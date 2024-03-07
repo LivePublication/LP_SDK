@@ -1,8 +1,37 @@
+import json
+import tempfile
+from pathlib import Path
+
 from click.testing import CliRunner
 
 from parser.cli import prospective
+from root import ROOT_DIR
 
-if __name__ == '__main__':
+
+def test_prospective():
     runner = CliRunner()
+    in_file = ROOT_DIR / 'tests' / 'data' / 'WEP.json'
+    assert in_file.exists()
+    with open(in_file) as f:
+        wep = json.load(f)
 
-    runner.invoke(prospective, ['-i', 'data/WEP.json', '-o', 'ro-crate-metadata.json'])
+    with tempfile.TemporaryDirectory() as d:
+        out_file = Path(d) / 'ro_crate_metadata.json'
+        assert not out_file.exists()
+
+        # subprocess.call(f'lp-parser prospective -i {in_file} -o {out_file}')
+        runner.invoke(prospective, ['-i', in_file, '-o', out_file])
+        assert out_file.exists()
+
+        with open(out_file) as f:
+            result = json.load(f)
+
+    assert '@context' in result
+    assert '@graph' in result
+    for item in result['@graph']:
+        assert '@id' in item
+        assert '@type' in item
+
+    item_ids = [item['@id'] for item in result['@graph']]
+    for item in wep['States'].keys():
+        assert item in item_ids
