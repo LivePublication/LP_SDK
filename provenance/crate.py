@@ -39,6 +39,7 @@ class LpProvCrate:
         }
 
         workflow = self.crate.add_workflow(file, file.name, main=True, lang='cwl',
+                                           lang_version='v1.0',
                                            properties=properties)
 
     def add_file(self, path: str):
