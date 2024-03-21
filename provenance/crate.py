@@ -32,14 +32,20 @@ class LpProvCrate:
         ]
         self.crate.root_dataset['conformsTo'] = profiles
 
+    def add_workflow(self, file: Path):
+        properties = {
+            '@type': ['File', 'SoftwareSourceCode', 'ComputationalWorkflow', 'HowTo'],
+            'name': file.name,
+        }
+
+        workflow = self.crate.add_workflow(file, file.name, main=True, lang='cwl',
+                                           properties=properties)
+
     def add_file(self, path: str):
         self.crate.add_file(path)
 
     def add_software(self, name: str, version: str, path: str):
         self.crate.add_software(name, version, path)
-
-    def add_workflow(self, path: str):
-        self.crate.add_workflow(path)
 
     def add_howto(self, path: str):
         self.crate.add_howto(path)
