@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from rocrate.model import ContextEntity
 from rocrate.rocrate import ROCrate
 
 # TODO:
@@ -41,6 +42,11 @@ class LpProvCrate:
         workflow = self.crate.add_workflow(file, file.name, main=True, lang='cwl',
                                            lang_version='v1.0',
                                            properties=properties)
+
+    def add_parameter(self, id) -> ContextEntity:
+        props = {
+        }
+        return self.crate.add(ContextEntity(self.crate, id, properties=props))
 
     def add_file(self, path: str):
         self.crate.add_file(path)

@@ -16,7 +16,7 @@ def _compare_dicts(d1, d2, name='root', error=True, indent=0):
     for key in d1:
         print(' ' * indent + key)
         if key not in d2:
-            _throw_or_print(f"Key {key} not in {name}: {d2}", error, indent)
+            _throw_or_print(f"Key {key} not in {name}: {d2}", error, indent+2)
             continue
 
         if isinstance(d1[key], dict):
@@ -25,14 +25,14 @@ def _compare_dicts(d1, d2, name='root', error=True, indent=0):
             if key == '@graph':
                 # Build dicts of items by id
                 if not isinstance(d2[key], list):
-                    _throw_or_print(f"Item {key}: {d2[key]} is not a list", error, indent)
+                    _throw_or_print(f"Item {key}: {d2[key]} is not a list", error, indent+2)
                     continue
                 d1_items = {item['@id']: item for item in d1[key]}
                 d2_items = {item['@id']: item for item in d2[key]}
                 _compare_dicts(d1_items, d2_items, key, error, indent+2)
             else:
                 if d1[key] != d2[key]:
-                    _throw_or_print(f"{d1[key]} != {d2[key]}", error, indent)
+                    _throw_or_print(f"{d1[key]} != {d2[key]}", error, indent+2)
         else:
             if d1[key] != d2[key]:
                 _throw_or_print(f"{d1[key]} != {d2[key]}", error, indent)
@@ -46,6 +46,16 @@ def test_create_prov_crate():
 
         crate = LpProvCrate(d)
         crate.add_workflow(d / 'packed.cwl')
+        p = crate.add_parameter('packed.cwl#main/input')
+        p.properties().update(
+            {
+                '@type': 'FormalParameter',
+                'additionalType': 'File',
+                'defaultValue': 'file:///home/stain/src/cwltool/tests/wf/hello.txt',
+                'encodingFormat': 'https://www.iana.org/assignments/media-types/text/plain',
+                'name': 'main/input'
+             }
+        )
         # crate.add_file('tests/data/WEP.json')
         crate.write()
 
