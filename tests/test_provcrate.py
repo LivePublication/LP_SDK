@@ -73,6 +73,8 @@ def test_create_prov_crate():
         rev_tool = crate.add_tool('packed.cwl#revtool.cwl', 'revtool.cwl', 'Reverse each line using the `rev` command')
         sort_tool = crate.add_tool('packed.cwl#sorttool.cwl', 'sorttool.cwl', 'Sort lines using the `sort` command')
 
+        wf['hasPart'] = [rev_tool, sort_tool]
+
         # Add formal parameters
         p1 = crate.add_parameter('packed.cwl#main/input')
         p1.properties().update(
