@@ -36,6 +36,12 @@ class LpProvCrate:
         }
         return self.crate.add(ContextEntity(self.crate, id, properties=properties))
 
+    def add_step(self, id, position):
+        properties = {
+            '@type': 'HoToStep',
+            'position': position,
+        }
+        return self.crate.add(ContextEntity(self.crate, id, properties=properties))
 
     def add_parameter(self, id) -> ContextEntity:
         props = {

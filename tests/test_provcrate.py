@@ -75,6 +75,14 @@ def test_create_prov_crate():
 
         wf['hasPart'] = [rev_tool, sort_tool]
 
+        rev_step = crate.add_step('packed.cwl#main/rev', "0")
+        rev_step['workExample'] = rev_tool
+
+        sort_step = crate.add_step('packed.cwl#main/sorted', "1")
+        sort_step['workExample'] = sort_tool
+
+        wf['step'] = [rev_step, sort_step]
+
         # Add formal parameters
         p1 = crate.add_parameter('packed.cwl#main/input')
         p1.properties().update(
