@@ -27,6 +27,16 @@ class LpProvCrate:
                                            lang_version='v1.0',
                                            properties=properties)
 
+    def add_tool(self, id, name, description):
+        properties = {
+            '@type': 'SoftwareApplication',
+            # Could also be ['SoftwareSourceCode', 'ComputationalWorflow', 'HowTo'] if it has steps
+            'description': description,
+            'name': name,
+        }
+        return self.crate.add(ContextEntity(self.crate, id, properties=properties))
+
+
     def add_parameter(self, id) -> ContextEntity:
         props = {
         }

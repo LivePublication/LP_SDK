@@ -69,9 +69,13 @@ def test_create_prov_crate():
         # Add workflow file
         wf = crate.add_workflow(d / 'packed.cwl')
 
+        # Add tools
+        rev_tool = crate.add_tool('packed.cwl#revtool.cwl', 'revtool.cwl', 'Reverse each line using the `rev` command')
+        sort_tool = crate.add_tool('packed.cwl#sorttool.cwl', 'sorttool.cwl', 'Sort lines using the `sort` command')
+
         # Add formal parameters
-        p = crate.add_parameter('packed.cwl#main/input')
-        p.properties().update(
+        p1 = crate.add_parameter('packed.cwl#main/input')
+        p1.properties().update(
             {
                 '@type': 'FormalParameter',
                 'additionalType': 'File',
@@ -81,8 +85,8 @@ def test_create_prov_crate():
              }
         )
 
-        p = crate.add_parameter('packed.cwl#main/reverse_sort')
-        p.properties().update(
+        p2 = crate.add_parameter('packed.cwl#main/reverse_sort')
+        p2.properties().update(
             {
                 '@type': 'FormalParameter',
                 'additionalType': 'Boolean',
@@ -90,6 +94,7 @@ def test_create_prov_crate():
                 'name': 'main/reverse_sort'
             }
         )
+        wf['input'] = [p1, p2]
 
         p = crate.add_parameter('packed.cwl#main/output')
         p.properties().update(
@@ -99,6 +104,7 @@ def test_create_prov_crate():
                 'name': 'main/output'
             }
         )
+        wf['output'] = [p]
 
         p = crate.add_parameter('packed.cwl#revtool.cwl/input')
         p.properties().update(
@@ -108,6 +114,7 @@ def test_create_prov_crate():
                 'name': 'revtool.cwl/input'
             }
         )
+        rev_tool['input'] = [p]
 
         p = crate.add_parameter('packed.cwl#revtool.cwl/output')
         p.properties().update(
@@ -117,9 +124,10 @@ def test_create_prov_crate():
                 'name': 'revtool.cwl/output'
             }
         )
+        rev_tool['output'] = [p]
 
-        p = crate.add_parameter('packed.cwl#sorttool.cwl/reverse')
-        p.properties().update(
+        p1 = crate.add_parameter('packed.cwl#sorttool.cwl/reverse')
+        p1.properties().update(
             {
                 '@type': 'FormalParameter',
                 'additionalType': 'Boolean',
@@ -127,14 +135,15 @@ def test_create_prov_crate():
             }
         )
 
-        p = crate.add_parameter('packed.cwl#sorttool.cwl/input')
-        p.properties().update(
+        p2 = crate.add_parameter('packed.cwl#sorttool.cwl/input')
+        p2.properties().update(
             {
                 '@type': 'FormalParameter',
                 'additionalType': 'File',
                 'name': 'sorttool.cwl/input'
             }
         )
+        sort_tool['input'] = [p1, p2]
 
         p = crate.add_parameter('packed.cwl#sorttool.cwl/output')
         p.properties().update(
@@ -144,6 +153,7 @@ def test_create_prov_crate():
                 'name': 'sorttool.cwl/output'
             }
         )
+        sort_tool['output'] = [p]
 
         crate.write()
 
