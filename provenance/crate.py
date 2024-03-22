@@ -17,29 +17,13 @@ class LpProvCrate:
         self.path = Path(path)
         self.crate = ROCrate()
 
-        # Conforms to provenance crate
-        profiles = [
-            {'@id': 'https://w3id.org/ro/crate/1.1'},
-            {'@id': 'https://w3id.org/workflowhub/workflow-ro-crate/1.0'}
-        ]
-        self.crate.metadata['conformsTo'] = profiles
-
-        # Root dataset conforms to provenance crate
-        profiles = [
-            {"@id": "https://w3id.org/ro/wfrun/process/0.1"},
-            {"@id": "https://w3id.org/ro/wfrun/workflow/0.1"},
-            {"@id": "https://w3id.org/ro/wfrun/provenance/0.1"},
-            {"@id": "https://w3id.org/workflowhub/workflow-ro-crate/1.0"}
-        ]
-        self.crate.root_dataset['conformsTo'] = profiles
-
     def add_workflow(self, file: Path):
         properties = {
             '@type': ['File', 'SoftwareSourceCode', 'ComputationalWorkflow', 'HowTo'],
             'name': file.name,
         }
 
-        workflow = self.crate.add_workflow(file, file.name, main=True, lang='cwl',
+        return self.crate.add_workflow(file, file.name, main=True, lang='cwl',
                                            lang_version='v1.0',
                                            properties=properties)
 

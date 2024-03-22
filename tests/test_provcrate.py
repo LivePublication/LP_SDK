@@ -39,13 +39,36 @@ def _compare_dicts(d1, d2, name='root', error=True, indent=0):
 
 
 def test_create_prov_crate():
+    """
+    Testing/TDD of tooling to recreate the example provenance crate from https://www.researchobject.org/workflow-run-crate/profiles/provenance_run_crate
+    The code here will be very manual, used to understand the structure and logic needed in the provcrate implementation.
+    """
+
     with tempfile.TemporaryDirectory() as d:
         d = Path(d)
         with open(d / 'packed.cwl', 'w+') as f:
             f.write('dummy data')
 
         crate = LpProvCrate(d)
-        crate.add_workflow(d / 'packed.cwl')
+        # Add conforms to statements
+        profiles = [
+            {'@id': 'https://w3id.org/ro/crate/1.1'},
+            {'@id': 'https://w3id.org/workflowhub/workflow-ro-crate/1.0'}
+        ]
+        crate.crate.metadata['conformsTo'] = profiles
+
+        # Root dataset conforms to provenance crate
+        profiles = [
+            {"@id": "https://w3id.org/ro/wfrun/process/0.1"},
+            {"@id": "https://w3id.org/ro/wfrun/workflow/0.1"},
+            {"@id": "https://w3id.org/ro/wfrun/provenance/0.1"},
+            {"@id": "https://w3id.org/workflowhub/workflow-ro-crate/1.0"}
+        ]
+        crate.crate.root_dataset['conformsTo'] = profiles
+
+        # Add workflow file
+        wf = crate.add_workflow(d / 'packed.cwl')
+
         p = crate.add_parameter('packed.cwl#main/input')
         p.properties().update(
             {
@@ -63,7 +86,7 @@ def test_create_prov_crate():
             data = json.load(f)
 
     # Expected data
-    with open('data/ro-crate-metadata.json') as f:
+    with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
     print()
