@@ -27,6 +27,14 @@ class LpProvCrate:
                                            lang_version='v1.0',
                                            properties=properties)
 
+    def add_profile(self, id, name, version):
+        properties = {
+            '@type': 'CreativeWork',
+            'name': name,
+            'version': version,
+        }
+        return self.crate.add(ContextEntity(self.crate, id, properties=properties))
+
     def add_tool(self, id, name, description):
         properties = {
             '@type': 'SoftwareApplication',
@@ -38,7 +46,7 @@ class LpProvCrate:
 
     def add_step(self, id, position):
         properties = {
-            '@type': 'HoToStep',
+            '@type': 'HowToStep',
             'position': position,
         }
         return self.crate.add(ContextEntity(self.crate, id, properties=properties))

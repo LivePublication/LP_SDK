@@ -65,12 +65,13 @@ def test_create_prov_crate():
 
         # Root dataset conforms to provenance crate
         profiles = [
-            {"@id": "https://w3id.org/ro/wfrun/process/0.1"},
-            {"@id": "https://w3id.org/ro/wfrun/workflow/0.1"},
-            {"@id": "https://w3id.org/ro/wfrun/provenance/0.1"},
-            {"@id": "https://w3id.org/workflowhub/workflow-ro-crate/1.0"}
+            ("https://w3id.org/ro/wfrun/process/", "0.1", 'Process Run Crate'),
+            ("https://w3id.org/ro/wfrun/workflow/", "0.1", 'Workflow Run Crate'),
+            ("https://w3id.org/ro/wfrun/provenance/", "0.1", 'Provenance Run Crate'),
+            ("https://w3id.org/workflowhub/workflow-ro-crate/", "1.0", 'Workflow RO-Crate'),
         ]
-        crate.crate.root_dataset['conformsTo'] = profiles
+        profile_entities = [crate.add_profile(f'{p[0]}{p[1]}', p[2], p[1]) for p in profiles]
+        crate.crate.root_dataset['conformsTo'] = profile_entities
 
         # Add workflow file
         wf = crate.add_workflow(d / 'packed.cwl')
