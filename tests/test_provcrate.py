@@ -3,6 +3,7 @@ import tempfile
 from pathlib import Path
 
 from provenance.crate import LpProvCrate
+from validation.util import detect_crate_type, CrateParts
 
 
 def _throw_or_print(msg, error=True, indent=0):
@@ -14,7 +15,12 @@ def _throw_or_print(msg, error=True, indent=0):
 
 def _compare_dicts(d1, d2, name='root', error=True, indent=0):
     for key in d1:
-        print(' ' * indent + key)
+        if '@type' in d1[key] and detect_crate_type(d1[key]) == CrateParts.retrospective:
+            print(' ' * indent + key + '- skipped, not prospective')
+            continue
+        else:
+            print(' ' * indent + key)
+
         if key not in d2:
             _throw_or_print(f"Key {key} not in {name}: {d2}", error, indent+2)
             continue
