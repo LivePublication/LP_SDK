@@ -69,6 +69,7 @@ def test_create_prov_crate():
         # Add workflow file
         wf = crate.add_workflow(d / 'packed.cwl')
 
+        # Add formal parameters
         p = crate.add_parameter('packed.cwl#main/input')
         p.properties().update(
             {
@@ -79,7 +80,71 @@ def test_create_prov_crate():
                 'name': 'main/input'
              }
         )
-        # crate.add_file('tests/data/WEP.json')
+
+        p = crate.add_parameter('packed.cwl#main/reverse_sort')
+        p.properties().update(
+            {
+                '@type': 'FormalParameter',
+                'additionalType': 'Boolean',
+                'defaultValue': 'True',
+                'name': 'main/reverse_sort'
+            }
+        )
+
+        p = crate.add_parameter('packed.cwl#main/output')
+        p.properties().update(
+            {
+                '@type': 'FormalParameter',
+                'additionalType': 'File',
+                'name': 'main/output'
+            }
+        )
+
+        p = crate.add_parameter('packed.cwl#revtool.cwl/input')
+        p.properties().update(
+            {
+                '@type': 'FormalParameter',
+                'additionalType': 'File',
+                'name': 'revtool.cwl/input'
+            }
+        )
+
+        p = crate.add_parameter('packed.cwl#revtool.cwl/output')
+        p.properties().update(
+            {
+                '@type': 'FormalParameter',
+                'additionalType': 'File',
+                'name': 'revtool.cwl/output'
+            }
+        )
+
+        p = crate.add_parameter('packed.cwl#sorttool.cwl/reverse')
+        p.properties().update(
+            {
+                '@type': 'FormalParameter',
+                'additionalType': 'Boolean',
+                'name': 'sorttool.cwl/reverse'
+            }
+        )
+
+        p = crate.add_parameter('packed.cwl#sorttool.cwl/input')
+        p.properties().update(
+            {
+                '@type': 'FormalParameter',
+                'additionalType': 'File',
+                'name': 'sorttool.cwl/input'
+            }
+        )
+
+        p = crate.add_parameter('packed.cwl#sorttool.cwl/output')
+        p.properties().update(
+            {
+                '@type': 'FormalParameter',
+                'additionalType': 'File',
+                'name': 'sorttool.cwl/output'
+            }
+        )
+
         crate.write()
 
         with open(Path(d) / 'ro-crate-metadata.json') as f:
@@ -91,3 +156,7 @@ def test_create_prov_crate():
 
     print()
     _compare_dicts(expected, data, error=False)
+
+
+if __name__ == '__main__':
+    test_create_prov_crate()
