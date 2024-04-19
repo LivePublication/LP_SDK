@@ -175,11 +175,23 @@ def _gen_commands():
     ]
 
 
+class _TestCommands(str):
+    """Container class - used so that parametrized tests can be named sensibly"""
+    __test__ = False
+
+    def __new__(cls, name: str, funcs: list[callable]):
+        obj = super().__new__(cls, name)
+        obj.name = name
+        obj.funcs = funcs
+        return obj
+
+
 def _gen_missing_commands():
     commands = _gen_commands()
 
     for j in range(len(commands)):
-        yield [c for i, c in enumerate(commands) if i != j]
+        par_name = commands[j].__name__
+        yield _TestCommands(par_name, [c for i, c in enumerate(commands) if i != j])
 
 
 def _apply_commands(commands) -> dict:
@@ -212,8 +224,8 @@ def test_crude_validator_succeeds():
 
 
 @pytest.mark.parametrize('commands', _gen_missing_commands())
-def test_crude_validator_fails(commands):
-    actual = _apply_commands(commands)
+def test_crude_validator_fails(commands: _TestCommands):
+    actual = _apply_commands(commands.funcs)
 
     with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
