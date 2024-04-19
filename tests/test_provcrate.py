@@ -221,7 +221,7 @@ def test_create_prov_crate():
         expected = json.load(f)
 
     print()
-    _compare_dicts(expected, data, error=False)
+    _compare_dicts(expected, data, error=True)
 
 
 if __name__ == '__main__':
