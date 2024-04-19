@@ -92,11 +92,12 @@ def test_create_prov_crate():
 
         crate = LpProvCrate(d)
         # Add conforms to statements
-        profiles = [
-            {'@id': 'https://w3id.org/ro/crate/1.1'},
-            {'@id': 'https://w3id.org/workflowhub/workflow-ro-crate/1.0'}
-        ]
-        crate.crate.metadata['conformsTo'] = profiles
+        # This is done automatically
+        # profiles = [
+        #     {'@id': 'https://w3id.org/ro/crate/1.1'},
+        #     {'@id': 'https://w3id.org/workflowhub/workflow-ro-crate/1.0'}
+        # ]
+        # crate.crate.metadata['conformsTo'] = profiles
 
         # Root dataset conforms to provenance crate
         profiles = [
