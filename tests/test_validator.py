@@ -6,6 +6,8 @@ import pytest
 
 from provenance.crate import LpProvCrate
 from tests.test_provcrate import _compare_dicts
+from validation.util import CrateParts
+from validation.validator import Comparator
 
 
 def _gen_commands():
@@ -232,4 +234,29 @@ def test_crude_validator_fails(commands: _TestCommands):
 
     with pytest.raises(AssertionError):
         _compare_dicts(expected, actual, error=True)
-        print(commands)
+
+
+def test_comparator_succeeds():
+    commands = _gen_commands()
+    actual = _apply_commands(commands)
+
+    with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
+        expected = json.load(f)
+
+    comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.orchestration, CrateParts.other], expected)
+    assert comp.compare(actual), "Expected comparator to confirm partial match"
+
+
+@pytest.mark.parametrize('commands', _gen_missing_commands())
+def test_comparator_fails(commands: _TestCommands):
+    actual = _apply_commands(commands.funcs)
+
+    with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
+        expected = json.load(f)
+
+    with pytest.raises(AssertionError):
+        comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.orchestration, CrateParts.other], expected)
+        assert comp.compare(actual), "Expected comparator to confirm partial match"
+
+
+
