@@ -172,6 +172,10 @@ def test_create_prov_crate():
         )
         sort_tool['output'] = [p]
 
+        crate.add_software('#a73fd902-8d14-48c9-835b-a5ba2f9149fd', 'cwltool 1.0.20181012180214')
+
+        # TODO: better validation tools - exclude retrospective entities from validation in lists
+
         crate.write()
 
         with open(Path(d) / 'ro-crate-metadata.json') as f:

@@ -44,6 +44,11 @@ class LpProvCrate:
         }
         return self.crate.add(ContextEntity(self.crate, id, properties=properties))
 
+    def add_software(self, id, name):
+        properties = {'@type': 'SoftwareApplication', 'name': name}
+
+        return self.crate.add(ContextEntity(self.crate, id, properties=properties))
+
     def add_step(self, id, position):
         properties = {
             '@type': 'HowToStep',
@@ -58,9 +63,6 @@ class LpProvCrate:
 
     def add_file(self, path: str):
         self.crate.add_file(path)
-
-    def add_software(self, name: str, version: str, path: str):
-        self.crate.add_software(name, version, path)
 
     def add_howto(self, path: str):
         self.crate.add_howto(path)
