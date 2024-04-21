@@ -24,7 +24,7 @@ def _gen_commands():
 
         return {}
 
-    def wf_i1(crate: LpProvCrate, context: dict) -> dict:
+    def wf_input_1(crate: LpProvCrate, context: dict) -> dict:
         p1 = crate.add_parameter('packed.cwl#main/input')
         p1.properties().update(
             {
@@ -35,9 +35,9 @@ def _gen_commands():
                 'name': 'main/input'
             }
         )
-        return {'wf_i1': p1}
+        return {'wf_input_1': p1}
 
-    def wf_i2(crate: LpProvCrate, context: dict) -> dict:
+    def wf_input_2(crate: LpProvCrate, context: dict) -> dict:
         p2 = crate.add_parameter('packed.cwl#main/reverse_sort')
         p2.properties().update(
             {
@@ -47,9 +47,9 @@ def _gen_commands():
                 'name': 'main/reverse_sort'
             }
         )
-        return {'wf_i2': p2}
+        return {'wf_input_2': p2}
 
-    def wf_o(crate: LpProvCrate, context: dict) -> dict:
+    def wf_output(crate: LpProvCrate, context: dict) -> dict:
         p = crate.add_parameter('packed.cwl#main/output')
         p.properties().update(
             {
@@ -58,7 +58,7 @@ def _gen_commands():
                 'name': 'main/output'
             }
         )
-        return {'wf_o': p}
+        return {'wf_output': p}
 
     def rev_input(crate: LpProvCrate, context: dict) -> dict:
         p = crate.add_parameter('packed.cwl#revtool.cwl/input')
@@ -148,9 +148,9 @@ def _gen_commands():
         wf['hasPart'] = [context[k] for k in ['rev_tool', 'sort_tool'] if k in context]
         wf['step'] = [context[k] for k in ['rev_step', 'sort_step'] if k in context]
 
-        wf['input'] = [context[k] for k in ['wf_i1', 'wf_i2'] if k in context]
-        if 'wf_o' in context:
-            wf['output'] = [context['wf_o']]
+        wf['input'] = [context[k] for k in ['wf_input_1', 'wf_input_2'] if k in context]
+        if 'wf_output' in context:
+            wf['output'] = [context['wf_output']]
 
         return {'wf': wf}
 
@@ -160,9 +160,9 @@ def _gen_commands():
 
     return [
         dataset_conforms,
-        wf_i1,
-        wf_i2,
-        wf_o,
+        wf_input_1,
+        wf_input_2,
+        wf_output,
         rev_input,
         rev_output,
         sort_input_1,
