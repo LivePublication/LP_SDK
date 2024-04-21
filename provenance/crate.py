@@ -45,6 +45,11 @@ class LpProvCrate:
             step_ent = self.add_step(f'{wf.id}#{id}', pos)
             wf.append_to('step', step_ent)
 
+            # Add tools
+            tool_id = f'{step.run.split("#")[-1]}'
+            tool_ent = self.add_tool(f'{wf.id}#{tool_id}', tool_id, step.run)
+            wf.append_to('hasPart', tool_ent)
+
     def add_workflow(self, file: Path) -> ComputationalWorkflow:
         properties = {
             '@type': ['File', 'SoftwareSourceCode', 'ComputationalWorkflow', 'HowTo'],
@@ -63,7 +68,7 @@ class LpProvCrate:
         }
         return self.crate.add(ContextEntity(self.crate, id, properties=properties))
 
-    def add_tool(self, id, name, description):
+    def add_tool(self, id, name, description) -> ContextEntity:
         properties = {
             '@type': 'SoftwareApplication',
             # Could also be ['SoftwareSourceCode', 'ComputationalWorflow', 'HowTo'] if it has steps
