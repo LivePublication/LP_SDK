@@ -61,6 +61,7 @@ class LpProvCrate:
             tool_id = f'{step.run.split("#")[-1]}'
             tool_ent = self.add_tool(f'{wf.id}#{tool_id}', tool_id, step.run)
             wf.append_to('hasPart', tool_ent)
+            step_ent['workExample'] = tool_ent
 
     def add_workflow(self, file: Path) -> ComputationalWorkflow:
         properties = {
