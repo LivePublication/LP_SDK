@@ -17,6 +17,10 @@ class LpProvCrate:
         self.path = Path(path)
         self.crate = ROCrate()
 
+    def build_from_wf(self, wf_file: Path):
+        """Build a crate from a workflow file"""
+        wf = self.add_workflow(wf_file)
+
     def add_workflow(self, file: Path):
         properties = {
             '@type': ['File', 'SoftwareSourceCode', 'ComputationalWorkflow', 'HowTo'],

@@ -1,9 +1,9 @@
 import json
+import shutil
 import tempfile
 from pathlib import Path
 
 from provenance.crate import LpProvCrate
-from tests.util import compare_dicts
 from validation.util import CrateParts
 from validation.validator import Comparator
 
@@ -143,6 +143,37 @@ def test_create_prov_crate():
         crate.add_software('#a73fd902-8d14-48c9-835b-a5ba2f9149fd', 'cwltool 1.0.20181012180214')
 
         # TODO: better validation tools - exclude retrospective entities from validation in lists
+
+        crate.write()
+
+        with open(Path(d) / 'ro-crate-metadata.json') as f:
+            actual = json.load(f)
+
+    # Expected data
+    with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
+        expected = json.load(f)
+
+    comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.other, CrateParts.orchestration],
+                      expected)
+    comp.compare(actual)
+
+
+def test_create_prov_crate_from_cwl():
+    """
+    Testing/TDD of tooling to recreate the example provenance crate from https://www.researchobject.org/workflow-run-crate/profiles/provenance_run_crate
+    This code will recreate the above test using a more automated approach, from the CWL file.
+    """
+
+    with tempfile.TemporaryDirectory() as d:
+        d = Path(d)
+
+        # Input CWL file
+        input_cwl = Path(__file__).parent / 'data' / 'packed.cwl'
+        input_cwl = Path(shutil.copy(input_cwl, d))
+
+        # Build crate from CWL file
+        crate = LpProvCrate(d)
+        crate.build_from_wf(input_cwl)
 
         crate.write()
 
