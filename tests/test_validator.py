@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from provenance.crate import LpProvCrate
-from tests.test_provcrate import _compare_dicts
+from tests.util import compare_dicts
 from validation.util import CrateParts
 from validation.validator import Comparator
 
@@ -222,7 +222,7 @@ def test_crude_validator_succeeds():
     with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
-    _compare_dicts(expected, actual, error=True)
+    compare_dicts(expected, actual, error=True)
 
 
 @pytest.mark.parametrize('commands', _gen_missing_commands())
@@ -233,7 +233,7 @@ def test_crude_validator_fails(commands: _TestCommands):
         expected = json.load(f)
 
     with pytest.raises(AssertionError):
-        _compare_dicts(expected, actual, error=True)
+        compare_dicts(expected, actual, error=True)
 
 
 def test_comparator_succeeds():
