@@ -4,6 +4,8 @@ from pathlib import Path
 
 from provenance.crate import LpProvCrate
 from tests.util import compare_dicts
+from validation.util import CrateParts
+from validation.validator import Comparator
 
 
 def test_create_prov_crate():
@@ -142,15 +144,12 @@ def test_create_prov_crate():
         crate.write()
 
         with open(Path(d) / 'ro-crate-metadata.json') as f:
-            data = json.load(f)
+            actual = json.load(f)
 
     # Expected data
     with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
-    print()
-    compare_dicts(expected, data, error=True)
-
-
-if __name__ == '__main__':
-    test_create_prov_crate()
+    comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.other, CrateParts.orchestration],
+                      expected)
+    comp.compare(actual)
