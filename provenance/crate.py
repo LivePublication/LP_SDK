@@ -21,6 +21,18 @@ class LpProvCrate:
         """Build a crate from a workflow file"""
         wf = self.add_workflow(wf_file)
 
+        # Add rocrate profiles
+        # TODO: don't hard-code these, get from somewhere
+        profiles = [
+            ("https://w3id.org/ro/wfrun/process/", "0.1", 'Process Run Crate'),
+            ("https://w3id.org/ro/wfrun/workflow/", "0.1", 'Workflow Run Crate'),
+            ("https://w3id.org/ro/wfrun/provenance/", "0.1", 'Provenance Run Crate'),
+            ("https://w3id.org/workflowhub/workflow-ro-crate/", "1.0", 'Workflow RO-Crate'),
+        ]
+        profile_entities = [self.add_profile(f'{p[0]}{p[1]}', p[2], p[1]) for p in profiles]
+        self.crate.root_dataset['conformsTo'] = profile_entities
+
+
     def add_workflow(self, file: Path):
         properties = {
             '@type': ['File', 'SoftwareSourceCode', 'ComputationalWorkflow', 'HowTo'],
