@@ -1,7 +1,9 @@
 from pathlib import Path
 
-from rocrate.model import ContextEntity
+from rocrate.model import ContextEntity, ComputationalWorkflow
 from rocrate.rocrate import ROCrate
+from runcrate import convert
+
 
 # TODO:
 # - add self-ref to crate, with conformsTo
@@ -19,8 +21,6 @@ class LpProvCrate:
 
     def build_from_wf(self, wf_file: Path):
         """Build a crate from a workflow file"""
-        wf = self.add_workflow(wf_file)
-
         # Add rocrate profiles
         # TODO: don't hard-code these, get from somewhere
         profiles = [
@@ -32,8 +32,20 @@ class LpProvCrate:
         profile_entities = [self.add_profile(f'{p[0]}{p[1]}', p[2], p[1]) for p in profiles]
         self.crate.root_dataset['conformsTo'] = profile_entities
 
+        # Add workflow
+        wf_defs = convert.get_workflow(wf_file)
+        wf = self.add_workflow(wf_file)
 
-    def add_workflow(self, file: Path):
+        pos_map = convert.ProvCrateBuilder._get_step_maps(wf_defs)
+
+        # Add steps
+        for step in getattr(wf_defs[wf.id], 'steps', []):
+            id = f'{step.id.split("#")[-1]}'
+            pos = pos_map[wf.id][id]['pos']
+            step_ent = self.add_step(f'{wf.id}#{id}', pos)
+            wf.append_to('step', step_ent)
+
+    def add_workflow(self, file: Path) -> ComputationalWorkflow:
         properties = {
             '@type': ['File', 'SoftwareSourceCode', 'ComputationalWorkflow', 'HowTo'],
             'name': file.name,
@@ -43,7 +55,7 @@ class LpProvCrate:
                                            lang_version='v1.0',
                                            properties=properties)
 
-    def add_profile(self, id, name, version):
+    def add_profile(self, id, name, version) -> ContextEntity:
         properties = {
             '@type': 'CreativeWork',
             'name': name,

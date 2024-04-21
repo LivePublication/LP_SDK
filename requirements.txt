@@ -2,3 +2,4 @@ rocrate
 PyLD
 Click
 tox
+runcrate
