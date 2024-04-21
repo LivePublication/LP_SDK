@@ -36,6 +36,18 @@ class LpProvCrate:
         wf_defs = convert.get_workflow(wf_file)
         wf = self.add_workflow(wf_file)
 
+        for input in wf_defs[wf.id].inputs:
+            id = f'{input.id.split("#")[-1]}'
+            input_ent = self.add_parameter(f'{wf.id}#{id}', id,
+                             convert.properties_from_cwl_param(input))
+            wf.append_to('input', input_ent)
+
+        for output in wf_defs[wf.id].outputs:
+            id = f'{output.id.split("#")[-1]}'
+            output_ent = self.add_parameter(f'{wf.id}#{id}', id,
+                             convert.properties_from_cwl_param(output))
+            wf.append_to('output', output_ent)
+
         pos_map = convert.ProvCrateBuilder._get_step_maps(wf_defs)
 
         # Add steps
@@ -89,10 +101,12 @@ class LpProvCrate:
         }
         return self.crate.add(ContextEntity(self.crate, id, properties=properties))
 
-    def add_parameter(self, id) -> ContextEntity:
-        props = {
-        }
-        return self.crate.add(ContextEntity(self.crate, id, properties=props))
+    def add_parameter(self, id, name=None, properties=None) -> ContextEntity:
+        if name:
+            properties = properties or {}
+            properties['name'] = name
+
+        return self.crate.add(ContextEntity(self.crate, id, properties=properties))
 
     def add_file(self, path: str):
         self.crate.add_file(path)
