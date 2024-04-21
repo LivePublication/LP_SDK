@@ -54,7 +54,7 @@ class LpProvCrate:
         for step in getattr(wf_defs[wf.id], 'steps', []):
             id = f'{step.id.split("#")[-1]}'
             pos = pos_map[wf.id][id]['pos']
-            step_ent = self.add_step(f'{wf.id}#{id}', pos)
+            step_ent = self.add_step(f'{wf.id}#{id}', str(pos))
             wf.append_to('step', step_ent)
 
             # Add tools
