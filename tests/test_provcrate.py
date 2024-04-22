@@ -139,7 +139,6 @@ def test_create_prov_crate():
         wf['input'] = [wf_input_1, wf_input_2]
         wf['output'] = [wf_output]
 
-
         crate.add_software('#a73fd902-8d14-48c9-835b-a5ba2f9149fd', 'cwltool 1.0.20181012180214')
 
         # TODO: better validation tools - exclude retrospective entities from validation in lists
@@ -174,6 +173,10 @@ def test_create_prov_crate_from_cwl():
         # Build crate from CWL file
         crate = LpProvCrate(d)
         crate.build_from_wf(input_cwl)
+
+        # TODO: this is considered prospective - but runcrate gets this by running the workflow
+        # See also: https://github.com/common-workflow-language/cwlprov-py/blob/main/cwlprov/prov.py
+        crate.add_software('#a73fd902-8d14-48c9-835b-a5ba2f9149fd', 'cwltool 1.0.20181012180214')
 
         crate.write()
 
