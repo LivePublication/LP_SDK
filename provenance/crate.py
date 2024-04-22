@@ -39,13 +39,13 @@ class LpProvCrate:
         for input in wf_defs[wf.id].inputs:
             id = f'{input.id.split("#")[-1]}'
             input_ent = self.add_parameter(f'{wf.id}#{id}', id,
-                             convert.properties_from_cwl_param(input))
+                                           convert.properties_from_cwl_param(input))
             wf.append_to('input', input_ent)
 
         for output in wf_defs[wf.id].outputs:
             id = f'{output.id.split("#")[-1]}'
             output_ent = self.add_parameter(f'{wf.id}#{id}', id,
-                             convert.properties_from_cwl_param(output))
+                                            convert.properties_from_cwl_param(output))
             wf.append_to('output', output_ent)
 
         pos_map = convert.ProvCrateBuilder._get_step_maps(wf_defs)
@@ -60,6 +60,19 @@ class LpProvCrate:
             # Add tools
             tool_id = f'{step.run.split("#")[-1]}'
             tool_ent = self.add_tool(f'{wf.id}#{tool_id}', tool_id, wf_defs[tool_id].doc)
+
+            for input in wf_defs[tool_id].inputs:
+                id = f'{input.id.split("#")[-1]}'
+                input_ent = self.add_parameter(f'{wf.id}#{id}', id,
+                                               convert.properties_from_cwl_param(input))
+                tool_ent.append_to('input', input_ent)
+
+            for output in wf_defs[tool_id].outputs:
+                id = f'{output.id.split("#")[-1]}'
+                output_ent = self.add_parameter(f'{wf.id}#{id}', id,
+                                                convert.properties_from_cwl_param(output))
+                tool_ent.append_to('output', output_ent)
+
             wf.append_to('hasPart', tool_ent)
             step_ent['workExample'] = tool_ent
 
@@ -70,8 +83,8 @@ class LpProvCrate:
         }
 
         return self.crate.add_workflow(file, file.name, main=True, lang='cwl',
-                                           lang_version='v1.0',
-                                           properties=properties)
+                                       lang_version='v1.0',
+                                       properties=properties)
 
     def add_profile(self, id, name, version) -> ContextEntity:
         properties = {
