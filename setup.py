@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="lp-parser",
+    name="lp-sdk",
     version="0.0.1",
     py_modules=find_packages(),
     install_requires=[
@@ -10,7 +10,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            "lp-parser = parser.cli:cli"
+            "lp-sdk = parser.cli:cli"
         ]
     }
 )
