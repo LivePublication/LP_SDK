@@ -162,7 +162,6 @@ def test_create_prov_crate_from_cwl():
     Testing/TDD of tooling to recreate the example provenance crate from https://www.researchobject.org/workflow-run-crate/profiles/provenance_run_crate
     This code will recreate the above test using a more automated approach, from the CWL file.
     """
-
     with tempfile.TemporaryDirectory() as d:
         d = Path(d)
 
@@ -178,6 +177,36 @@ def test_create_prov_crate_from_cwl():
         # See also: https://github.com/common-workflow-language/cwlprov-py/blob/main/cwlprov/prov.py
         crate.add_software('#a73fd902-8d14-48c9-835b-a5ba2f9149fd', 'cwltool 1.0.20181012180214')
 
+        crate.write()
+
+        with open(Path(d) / 'ro-crate-metadata.json') as f:
+            actual = json.load(f)
+
+    # Expected data
+    # TODO: the unit tests in runcrate expect more than this, but also read more than just the .cwl file
+    with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
+        expected = json.load(f)
+
+    comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.other, CrateParts.orchestration],
+                      expected)
+    comp.compare(actual)
+
+
+def test_prov_crate_from_wep():
+    """
+    Testing/TDD of tooling to recreate the example provenance crate from https://www.researchobject.org/workflow-run-crate/profiles/provenance_run_crate
+    This code will recreate the above test using a more automated approach, from the WEP file.
+    """
+    with tempfile.TemporaryDirectory() as d:
+        d = Path(d)
+
+        # Input WEP file
+        input_wep = Path(__file__).parent / 'data' / 'prov_WEP.json'
+        input_wep = Path(shutil.copy(input_wep, d))
+
+        # Build crate from WEP file
+        crate = LpProvCrate(d)
+        crate.build_from_wep(input_wep)
         crate.write()
 
         with open(Path(d) / 'ro-crate-metadata.json') as f:

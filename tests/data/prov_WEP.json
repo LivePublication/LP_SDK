@@ -1,0 +1,51 @@
+{
+    "States": {
+        "fastText": {
+            "ActionScope": "https://auth.globus.org/scopes/ca022ddb-b17d-4004-b600-4f15354a297c/action_provider_operations",
+            "ActionUrl": "http://130.216.216.5:8080/fastText",
+            "Comment": "Execute fastText classification on input_data.txt",
+            "Type": "Action",
+            "Parameters": {
+                "input_data.$": "$.input.fast_text_path",
+                "management_ep_id.$": "$.input.management_ep_id"
+            },
+            "ResultPath": "$.fastText",
+            "WaitTime": 6000,
+            "Next": "fastText_statistics_transfer"
+        },
+        "langdetect": {
+            "ActionScope": "https://auth.globus.org/scopes/feda0005-01ad-414d-81ce-dcc5b7f61a1f/action_provider_operations",
+            "ActionUrl": "http://130.216.217.48:8080/langdetect",
+            "Comment": "Execute langdetect classification on input_data.txt",
+            "Type": "Action",
+            "Parameters": {
+                "input_data.$": "$.input.fast_text_path",
+                "management_ep_id.$": "$.input.management_ep_id"
+            },
+            "ResultPath": "$.langdetect",
+            "WaitTime": 6000,
+            "Next": "langdetect_statistics_transfer"
+        },
+        "statistics_DS_transfer": {
+            "Comment": "Transfer a directory to datastore",
+            "Type": "Action",
+            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "Parameters": {
+                "source_endpoint_id.$": "$.input.statistics_ep_id",
+                "destination_endpoint_id.$": "$.input.data_store_ep_id",
+                "transfer_items": [
+                    {
+                        "source_path.$": "$.input.statistics_path",
+                        "destination_path.$": "$.input.datastore_path",
+                        "recursive": true
+                    }
+                ]
+            },
+            "ResultPath": "$.statistics_DS_transfer",
+            "WaitTime": 600,
+            "End": true
+        }
+    },
+    "Comment": "Flow with states: DS_fastText_Transfer, fastText, fastText_statistics_transfer, DS_langDetect_transfer, langdetect, langdetect_statistics_transfer, statistics, statistics_DS_transfer",
+    "StartAt": "DS_fastText_Transfer"
+}
