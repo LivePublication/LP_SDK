@@ -219,7 +219,7 @@ def test_crude_validator_succeeds():
     commands = _gen_commands()
     actual = _apply_commands(commands)
 
-    with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
+    with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
     compare_dicts(expected, actual, error=True)
@@ -229,7 +229,7 @@ def test_crude_validator_succeeds():
 def test_crude_validator_fails(commands: _TestCommands):
     actual = _apply_commands(commands.funcs)
 
-    with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
+    with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
     with pytest.raises(AssertionError):
@@ -240,7 +240,7 @@ def test_comparator_succeeds():
     commands = _gen_commands()
     actual = _apply_commands(commands)
 
-    with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
+    with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
     comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.orchestration, CrateParts.other], expected)
@@ -251,7 +251,7 @@ def test_comparator_succeeds():
 def test_comparator_fails(commands: _TestCommands):
     actual = _apply_commands(commands.funcs)
 
-    with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
+    with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
     with pytest.raises(AssertionError):

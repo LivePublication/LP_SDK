@@ -149,7 +149,7 @@ def test_create_prov_crate():
             actual = json.load(f)
 
     # Expected data
-    with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
+    with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
     comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.other, CrateParts.orchestration],
@@ -166,7 +166,7 @@ def test_create_prov_crate_from_cwl():
         d = Path(d)
 
         # Input CWL file
-        input_cwl = Path(__file__).parent / 'data' / 'packed.cwl'
+        input_cwl = Path(__file__).parent / 'data' / 'cwl_prov' / 'packed.cwl'
         input_cwl = Path(shutil.copy(input_cwl, d))
 
         # Build crate from CWL file
@@ -184,7 +184,7 @@ def test_create_prov_crate_from_cwl():
 
     # Expected data
     # TODO: the unit tests in runcrate expect more than this, but also read more than just the .cwl file
-    with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
+    with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
     comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.other, CrateParts.orchestration],
@@ -201,7 +201,7 @@ def test_prov_crate_from_wep():
         d = Path(d)
 
         # Input WEP file
-        input_wep = Path(__file__).parent / 'data' / 'prov_WEP.json'
+        input_wep = Path(__file__).parent / 'data' / 'WEP.json'
         input_wep = Path(shutil.copy(input_wep, d))
 
         # Build crate from WEP file
