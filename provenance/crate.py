@@ -19,7 +19,7 @@ class LpProvCrate:
         self.path = Path(path)
         self.crate = ROCrate()
 
-    def build_from_wf(self, wf_file: Path):
+    def build_from_cwl(self, wf_file: Path):
         """Build a crate from a workflow file"""
         # Add rocrate profiles
         # TODO: don't hard-code these, get from somewhere
@@ -79,6 +79,20 @@ class LpProvCrate:
 
             wf.append_to('hasPart', tool_ent)
             step_ent['workExample'] = tool_ent
+
+    def build_from_wep(self, wep_file: Path):
+        """Build a crate from a WEP file"""
+        # TODO: don't hard-code these, get from somewhere
+        profiles = [
+            ("https://w3id.org/ro/wfrun/process/", "0.1", 'Process Run Crate'),
+            ("https://w3id.org/ro/wfrun/workflow/", "0.1", 'Workflow Run Crate'),
+            ("https://w3id.org/ro/wfrun/provenance/", "0.1", 'Provenance Run Crate'),
+            ("https://w3id.org/workflowhub/workflow-ro-crate/", "1.0", 'Workflow RO-Crate'),
+        ]
+        profile_entities = [self.add_profile(f'{p[0]}{p[1]}', p[2], p[1]) for p in profiles]
+        self.crate.root_dataset['conformsTo'] = profile_entities
+
+        self.add_workflow(wep_file)
 
     def add_workflow(self, file: Path) -> ComputationalWorkflow:
         properties = {

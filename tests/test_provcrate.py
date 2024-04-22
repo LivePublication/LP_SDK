@@ -171,7 +171,7 @@ def test_create_prov_crate_from_cwl():
 
         # Build crate from CWL file
         crate = LpProvCrate(d)
-        crate.build_from_wf(input_cwl)
+        crate.build_from_cwl(input_cwl)
 
         # TODO: this is considered prospective - but runcrate gets this by running the workflow
         # See also: https://github.com/common-workflow-language/cwlprov-py/blob/main/cwlprov/prov.py
@@ -214,7 +214,7 @@ def test_prov_crate_from_wep():
 
     # Expected data
     # TODO: the unit tests in runcrate expect more than this, but also read more than just the .cwl file
-    with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
+    with open(Path(__file__).parent / 'data' / 'wep_prov' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
     comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.other, CrateParts.orchestration],
