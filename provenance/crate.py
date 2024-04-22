@@ -47,8 +47,17 @@ def _parse_wep(wep: dict, main_endpoint: str):
                 dest_path = _strip_wep_param(transfers['destination_path.$'])
 
                 # Parameter name
-                source_name = f'{source_step}/{source_path}'
-                dest_name = f'{dest_step}/{dest_path}'
+                # TODO - this (using the actionUrl rather than step as id) is probably not actually what we want
+                if source_step == 'main':
+                    source_name = f'{source_step}/{source_path}'
+                else:
+                    tool_name = wep['States'][source_step]["ActionUrl"]
+                    source_name = f'{tool_name}/{source_path}'
+                if dest_step == 'main':
+                    dest_name = f'{dest_step}/{dest_path}'
+                else:
+                    tool_name = wep['States'][dest_step]["ActionUrl"]
+                    dest_name = f'{tool_name}/{dest_path}'
 
                 # Transfers to/from main are input-input, output-output
                 # Transfers between steps are output-input
@@ -70,13 +79,14 @@ def _parse_wep(wep: dict, main_endpoint: str):
 
         else:  # Not a transfer step
             # Check that input parameters are already registered (by previous transfer step)
+            tool_name = props["ActionUrl"]
             for input_param in props['Parameters'].values():
-                input_name = f'{step}/{_strip_wep_param(input_param)}'
+                input_name = f'{tool_name}/{_strip_wep_param(input_param)}'
                 assert input_name in rval[step]['input'], \
                     f"Input parameter {input_param} not found for step {step}"
 
             # Register output parameters
-            output_name = f'{step}/{_strip_wep_param(props["ResultPath"])}'
+            output_name = f'{tool_name}/{_strip_wep_param(props["ResultPath"])}'
             rval[step].setdefault('output', []).append(output_name)
 
             # Set position
@@ -207,7 +217,17 @@ class LpProvCrate:
             props = wep['States'][step_id]
             name = props["ActionUrl"]
             tool_ent = self.add_tool(f'{wf.id}#{name}', name, props['Comment'])
+
+            for input in info['input']:
+                input_ent = self.add_parameter(f'{wf.id}#{input}', input, param_props)
+                tool_ent.append_to('input', input_ent)
+
+            for output in info['output']:
+                output_ent = self.add_parameter(f'{wf.id}#{output}', output, param_props)
+                tool_ent.append_to('output', output_ent)
+
             wf.append_to('hasPart', tool_ent)
+            step_ent['workExample'] = tool_ent
 
     def add_workflow(self, file: Path) -> ComputationalWorkflow:
         properties = {
