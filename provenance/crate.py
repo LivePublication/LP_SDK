@@ -59,7 +59,7 @@ class LpProvCrate:
 
             # Add tools
             tool_id = f'{step.run.split("#")[-1]}'
-            tool_ent = self.add_tool(f'{wf.id}#{tool_id}', tool_id, step.run)
+            tool_ent = self.add_tool(f'{wf.id}#{tool_id}', tool_id, wf_defs[tool_id].doc)
             wf.append_to('hasPart', tool_ent)
             step_ent['workExample'] = tool_ent
 
