@@ -192,15 +192,17 @@ class LpProvCrate:
             wf.append_to('output', output_ent)
 
         # Add steps
-        for step_id, props in wep['States'].items():
-            step_ent = self.add_step(f'{wf.id}#{step_id}', str(0))
+        for step_id, info in step_info.items():
+            if step_id == 'main':
+                continue  # Main represents the workflow, not a step
+            step_ent = self.add_step(f'{wf.id}#main/{step_id}', str(info['pos']))
             wf.append_to('step', step_ent)
 
             # Add tool
+            props = wep['States'][step_id]
             name = props["ActionUrl"]
             tool_ent = self.add_tool(f'{wf.id}#{name}', name, props['Comment'])
             wf.append_to('hasPart', tool_ent)
-
 
     def add_workflow(self, file: Path) -> ComputationalWorkflow:
         properties = {
