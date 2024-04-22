@@ -19,12 +19,12 @@
             {"@id": "https://w3id.org/workflowhub/workflow-ro-crate/1.0"}
         ],
         "hasPart": [
-            {"@id": "packed.cwl"},
+            {"@id": "WEP.json"},
             {"@id": "327fc7aedf4f6b69a42a7c8b808dc5a7aff61376"},
             {"@id": "b9214658cc453331b62c2282b772a5c063dbd284"},
             {"@id": "97fe1b50b4582cebc7d853796ebd62e3e163aa3f"}
         ],
-        "mainEntity": {"@id": "packed.cwl"},
+        "mainEntity": {"@id": "WEP.json"},
         "mentions": [
             {"@id": "#4154dad3-00cc-4e35-bb8f-a2de5cd7dc49"}
         ]
@@ -50,24 +50,24 @@
         "version": "1.0"
     },
     {
-        "@id": "packed.cwl",
+        "@id": "WEP.json",
         "@type": ["File", "SoftwareSourceCode", "ComputationalWorkflow", "HowTo"],
         "hasPart": [
-            {"@id": "packed.cwl#revtool.cwl"},
-            {"@id": "packed.cwl#sorttool.cwl"}
+            {"@id": "WEP.json#revtool.cwl"},
+            {"@id": "WEP.json#sorttool.cwl"}
         ],
         "input": [
-            {"@id": "packed.cwl#main/input"},
-            {"@id": "packed.cwl#main/reverse_sort"}
+            {"@id": "WEP.json#main/input"},
+            {"@id": "WEP.json#main/reverse_sort"}
         ],
-        "name": "packed.cwl",
+        "name": "WEP.json",
         "output": [
-            {"@id": "packed.cwl#main/output"}
+            {"@id": "WEP.json#main/output"}
         ],
         "programmingLanguage": {"@id": "https://w3id.org/workflowhub/workflow-ro-crate#cwl"},
         "step": [
-            {"@id": "packed.cwl#main/rev"},
-            {"@id": "packed.cwl#main/sorted"}
+            {"@id": "WEP.json#main/rev"},
+            {"@id": "WEP.json#main/sorted"}
         ]
     },
     {
@@ -80,7 +80,7 @@
         "version": "v1.0"
     },
     {
-        "@id": "packed.cwl#main/input",
+        "@id": "WEP.json#main/input",
         "@type": "FormalParameter",
         "additionalType": "File",
         "defaultValue": "file:///home/stain/src/cwltool/tests/wf/hello.txt",
@@ -88,81 +88,81 @@
         "name": "main/input"
     },
     {
-        "@id": "packed.cwl#main/reverse_sort",
+        "@id": "WEP.json#main/reverse_sort",
         "@type": "FormalParameter",
         "additionalType": "Boolean",
         "defaultValue": "True",
         "name": "main/reverse_sort"
     },
     {
-        "@id": "packed.cwl#main/output",
+        "@id": "WEP.json#main/output",
         "@type": "FormalParameter",
         "additionalType": "File",
         "name": "main/output"
     },
     {
-        "@id": "packed.cwl#main/rev",
+        "@id": "WEP.json#main/rev",
         "@type": "HowToStep",
         "position": "0",
-        "workExample": {"@id": "packed.cwl#revtool.cwl"}
+        "workExample": {"@id": "WEP.json#revtool.cwl"}
     },
     {
-        "@id": "packed.cwl#revtool.cwl",
+        "@id": "WEP.json#revtool.cwl",
         "@type": "SoftwareApplication",
         "description": "Reverse each line using the `rev` command",
         "input": [
-            {"@id": "packed.cwl#revtool.cwl/input"}
+            {"@id": "WEP.json#revtool.cwl/input"}
         ],
         "name": "revtool.cwl",
         "output": [
-            {"@id": "packed.cwl#revtool.cwl/output"}
+            {"@id": "WEP.json#revtool.cwl/output"}
         ]
     },
     {
-        "@id": "packed.cwl#revtool.cwl/input",
+        "@id": "WEP.json#revtool.cwl/input",
         "@type": "FormalParameter",
         "additionalType": "File",
         "name": "revtool.cwl/input"
     },
     {
-        "@id": "packed.cwl#revtool.cwl/output",
+        "@id": "WEP.json#revtool.cwl/output",
         "@type": "FormalParameter",
         "additionalType": "File",
         "name": "revtool.cwl/output"
     },
     {
-        "@id": "packed.cwl#main/sorted",
+        "@id": "WEP.json#main/sorted",
         "@type": "HowToStep",
         "position": "1",
-        "workExample": {"@id": "packed.cwl#sorttool.cwl"}
+        "workExample": {"@id": "WEP.json#sorttool.cwl"}
     },
     {
-        "@id": "packed.cwl#sorttool.cwl",
+        "@id": "WEP.json#sorttool.cwl",
         "@type": "SoftwareApplication",
         "description": "Sort lines using the `sort` command",
         "input": [
-            {"@id": "packed.cwl#sorttool.cwl/reverse"},
-            {"@id": "packed.cwl#sorttool.cwl/input"}
+            {"@id": "WEP.json#sorttool.cwl/reverse"},
+            {"@id": "WEP.json#sorttool.cwl/input"}
         ],
         "name": "sorttool.cwl",
         "output": [
-            {"@id": "packed.cwl#sorttool.cwl/output"}
+            {"@id": "WEP.json#sorttool.cwl/output"}
         ]
     },
     {
-        "@id": "packed.cwl#sorttool.cwl/reverse",
+        "@id": "WEP.json#sorttool.cwl/reverse",
         "@type": "FormalParameter",
         "additionalType": "Boolean",
         "name": "sorttool.cwl/reverse"
     },
     {
-        "@id": "packed.cwl#sorttool.cwl/input",
+        "@id": "WEP.json#sorttool.cwl/input",
         "@type": "FormalParameter",
         "additionalType": "File",
         "name": "sorttool.cwl/input"
     },
     {
-        "@id": "packed.cwl#sorttool.cwl/output",
+        "@id": "WEP.json#sorttool.cwl/output",
         "@type": "FormalParameter",
         "additionalType": "File",
         "name": "sorttool.cwl/output"
@@ -194,8 +194,8 @@
         "@id": "#4154dad3-00cc-4e35-bb8f-a2de5cd7dc49",
         "@type": "CreateAction",
         "endTime": "2018-10-25T15:46:43.020168",
-        "instrument": {"@id": "packed.cwl"},
-        "name": "Run of workflow/packed.cwl#main",
+        "instrument": {"@id": "WEP.json"},
+        "name": "Run of workflow/WEP.json#main",
         "object": [
             {"@id": "327fc7aedf4f6b69a42a7c8b808dc5a7aff61376"},
             {"@id": "#pv-main/reverse_sort"}
@@ -209,14 +209,14 @@
         "@id": "327fc7aedf4f6b69a42a7c8b808dc5a7aff61376",
         "@type": "File",
         "exampleOfWork": [
-            {"@id": "packed.cwl#main/input"},
-            {"@id": "packed.cwl#revtool.cwl/input"}
+            {"@id": "WEP.json#main/input"},
+            {"@id": "WEP.json#revtool.cwl/input"}
         ]
     },
     {
         "@id": "#pv-main/reverse_sort",
         "@type": "PropertyValue",
-        "exampleOfWork": {"@id": "packed.cwl#main/reverse_sort"},
+        "exampleOfWork": {"@id": "WEP.json#main/reverse_sort"},
         "name": "main/reverse_sort",
         "value": "True"
     },
@@ -224,16 +224,16 @@
         "@id": "b9214658cc453331b62c2282b772a5c063dbd284",
         "@type": "File",
         "exampleOfWork": [
-            {"@id": "packed.cwl#main/output"},
-            {"@id": "packed.cwl#sorttool.cwl/output"}
+            {"@id": "WEP.json#main/output"},
+            {"@id": "WEP.json#sorttool.cwl/output"}
         ]
     },
     {
         "@id": "#6933cce1-f8f0-4032-8848-e0fc9166e92f",
         "@type": "CreateAction",
         "endTime": "2018-10-25T15:46:36.967359",
-        "instrument": {"@id": "packed.cwl#revtool.cwl"},
-        "name": "Run of workflow/packed.cwl#main/rev",
+        "instrument": {"@id": "WEP.json#revtool.cwl"},
+        "name": "Run of workflow/WEP.json#main/rev",
         "object": [
             {"@id": "327fc7aedf4f6b69a42a7c8b808dc5a7aff61376"}
         ],
@@ -245,7 +245,7 @@
     {
         "@id": "#4f7f887f-1b9b-4417-9beb-58618a125cc5",
         "@type": "ControlAction",
-        "instrument": {"@id": "packed.cwl#main/rev"},
+        "instrument": {"@id": "WEP.json#main/rev"},
         "name": "orchestrate revtool.cwl",
         "object": {"@id": "#6933cce1-f8f0-4032-8848-e0fc9166e92f"}
     },
@@ -253,16 +253,16 @@
         "@id": "97fe1b50b4582cebc7d853796ebd62e3e163aa3f",
         "@type": "File",
         "exampleOfWork": [
-            {"@id": "packed.cwl#revtool.cwl/output"},
-            {"@id": "packed.cwl#sorttool.cwl/input"}
+            {"@id": "WEP.json#revtool.cwl/output"},
+            {"@id": "WEP.json#sorttool.cwl/input"}
         ]
     },
     {
         "@id": "#9eac64b2-c2c8-401f-9af8-7cfb0e998107",
         "@type": "CreateAction",
         "endTime": "2018-10-25T15:46:38.069110",
-        "instrument": {"@id": "packed.cwl#sorttool.cwl"},
-        "name": "Run of workflow/packed.cwl#main/sorted",
+        "instrument": {"@id": "WEP.json#sorttool.cwl"},
+        "name": "Run of workflow/WEP.json#main/sorted",
         "object": [
             {"@id": "97fe1b50b4582cebc7d853796ebd62e3e163aa3f"},
             {"@id": "#pv-main/sorted/reverse"}
@@ -275,14 +275,14 @@
     {
         "@id": "#793b3df4-cbb7-4d17-94d4-0edb18566ed3",
         "@type": "ControlAction",
-        "instrument": {"@id": "packed.cwl#main/sorted"},
+        "instrument": {"@id": "WEP.json#main/sorted"},
         "name": "orchestrate sorttool.cwl",
         "object": {"@id": "#9eac64b2-c2c8-401f-9af8-7cfb0e998107"}
     },
     {
         "@id": "#pv-main/sorted/reverse",
         "@type": "PropertyValue",
-        "exampleOfWork": {"@id": "packed.cwl#sorttool.cwl/reverse"},
+        "exampleOfWork": {"@id": "WEP.json#sorttool.cwl/reverse"},
         "name": "main/sorted/reverse",
         "value": "True"
     }
