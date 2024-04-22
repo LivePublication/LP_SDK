@@ -1,4 +1,4 @@
-from validation.util import detect_crate_type, CrateParts
+from lp_sdk.validation.util import detect_crate_type, CrateParts
 
 
 def _throw_or_print(msg, error=True, indent=0):

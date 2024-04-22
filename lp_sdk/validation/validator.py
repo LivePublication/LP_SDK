@@ -1,4 +1,4 @@
-from validation.util import CrateParts, detect_crate_type
+from lp_sdk.validation.util import CrateParts, detect_crate_type
 
 
 class Comparator:

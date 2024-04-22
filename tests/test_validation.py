@@ -1,4 +1,4 @@
-from validation.util import detect_crate_type, CrateParts
+from lp_sdk.validation.util import detect_crate_type, CrateParts
 
 
 def test_type_detection():

@@ -17,6 +17,14 @@ from runcrate import convert
 #   - mentions: run of workflow?
 
 
+# TODO: the WEP encodes where to get input parameters (from a UI), what we want to encode in the crate
+#       is the values of those parameters at runtime, so we need an extra data source
+#
+#       on second thought - no, the crate should encode the parameter ID, not e.g.: a local file path,
+#       so that later invocations can present these as options - but we should also capture the actual file (+ hash)
+#
+#       for the purpose of creating a crate, rather than something that looks like the example, we might just want
+#       to use the entire parameter ID as is?
 def _strip_wep_param(param: str):
     return param[2:]
 

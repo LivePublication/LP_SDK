@@ -4,10 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from provenance.crate import LpProvCrate
+from lp_sdk.provenance import LpProvCrate
 from tests.util import compare_dicts
-from validation.util import CrateParts
-from validation.validator import Comparator
+from lp_sdk.validation.util import CrateParts
+from lp_sdk.validation.validator import Comparator
 
 
 def _gen_commands():

@@ -1,7 +1,7 @@
 import tempfile
 from pathlib import Path
 
-from parser.retrospective import format_retro_rocrate, write_retro_rocrate
+from lp_sdk.parser.retrospective import format_retro_rocrate, write_retro_rocrate
 
 
 def test_retrospective():

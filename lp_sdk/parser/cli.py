@@ -3,8 +3,8 @@ from pathlib import Path
 import click
 import pathlib
 
-from parser.crate import get_crates
-from parser import prospective as _prospective
+from lp_sdk.parser.crate import get_crates
+from lp_sdk.parser import prospective as _prospective
 
 
 @click.group()

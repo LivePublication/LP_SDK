@@ -4,7 +4,7 @@ from pathlib import Path
 
 from click.testing import CliRunner
 
-from parser.cli import prospective
+from lp_sdk.parser.cli import prospective
 
 TEST_DIR = Path(__file__).parent
 

@@ -3,9 +3,9 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from provenance.crate import LpProvCrate
-from validation.util import CrateParts
-from validation.validator import Comparator
+from lp_sdk.provenance import LpProvCrate
+from lp_sdk.validation.util import CrateParts
+from lp_sdk.validation.validator import Comparator
 
 
 def test_create_prov_crate():
@@ -171,6 +171,7 @@ def test_create_prov_crate_from_cwl():
 
         # Build crate from CWL file
         crate = LpProvCrate(d)
+        # TODO - link tool in/outputs to main in/outputs
         crate.build_from_cwl(input_cwl)
 
         # TODO: this is considered prospective - but runcrate gets this by running the workflow

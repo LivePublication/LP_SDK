@@ -10,5 +10,3 @@ def get_crates(path: pathlib.Path):
     for root, dir, files in os.walk(path):
         if 'ro-crate-metadata.json' in files:
             yield ROCrate(str(pathlib.Path(root)))
-
-
