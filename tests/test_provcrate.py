@@ -201,7 +201,7 @@ def test_prov_crate_from_wep():
         d = Path(d)
 
         # Input WEP file
-        input_wep = Path(__file__).parent / 'data' / 'WEP.json'
+        input_wep = Path(__file__).parent / 'data' / 'wep_prov' / 'WEP.json'
         input_wep = Path(shutil.copy(input_wep, d))
 
         # Build crate from WEP file

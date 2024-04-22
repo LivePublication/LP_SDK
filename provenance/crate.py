@@ -99,11 +99,14 @@ class LpProvCrate:
             wep = json.load(f)
 
         # Add steps
-        for state in wep['States']:
-            step_ent = self.add_step(f'{wep_file}#{state}', str(0))
+        for step_id, props in wep['States'].items():
+            step_ent = self.add_step(f'{wf.id}#{step_id}', str(0))
             wf.append_to('step', step_ent)
 
             # Add tool
+            name = props["ActionUrl"]
+            tool_ent = self.add_tool(f'{wf.id}#{name}', name, props['Comment'])
+            wf.append_to('hasPart', tool_ent)
 
 
     def add_workflow(self, file: Path) -> ComputationalWorkflow:
