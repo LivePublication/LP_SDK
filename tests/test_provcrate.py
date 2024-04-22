@@ -221,6 +221,8 @@ def test_prov_crate_from_wep():
         ent = crate.crate.get("WEP.json#sorttool.cwl/reverse")
         ent['additionalType'] = 'Boolean'
 
+        crate.add_software('#a73fd902-8d14-48c9-835b-a5ba2f9149fd', 'cwltool 1.0.20181012180214')
+
         # Build crate and retrieve data
         crate.write()
 
