@@ -26,8 +26,8 @@ def _parse_wep(wep: dict, main_endpoint: str):
     props = wep['States'][step]
     seen = {step}  # Check we don't get stuck in a loop
 
-    rval = defaultdict(dict)
-    links = []
+    step_info = defaultdict(dict)
+    param_links = []
 
     pos = 0
     while True:
@@ -62,35 +62,34 @@ def _parse_wep(wep: dict, main_endpoint: str):
                 # Transfers to/from main are input-input, output-output
                 # Transfers between steps are output-input
                 if source_step == 'main':
-                    rval['main'].setdefault('input', []).append(source_name)
+                    step_info['main'].setdefault('input', []).append(source_name)
                 else:
                     # Inputs from previous steps should already be defined
-                    assert source_name in rval[source_step]['output'], \
+                    assert source_name in step_info[source_step]['output'], \
                         f"Output parameter {source_name} not found for step {source_step}"
-                    rval[source_step].setdefault('output', []).append(source_name)
 
                 if dest_step == 'main':
-                    rval['main'].setdefault('output', []).append(dest_name)
+                    step_info['main'].setdefault('output', []).append(dest_name)
                 else:
-                    rval[dest_step].setdefault('input', []).append(dest_name)
+                    step_info[dest_step].setdefault('input', []).append(dest_name)
 
                 # Link parameters
-                links.append((source_name, dest_name))
+                param_links.append((source_name, dest_name))
 
         else:  # Not a transfer step
             # Check that input parameters are already registered (by previous transfer step)
             tool_name = props["ActionUrl"]
             for input_param in props['Parameters'].values():
                 input_name = f'{tool_name}/{_strip_wep_param(input_param)}'
-                assert input_name in rval[step]['input'], \
+                assert input_name in step_info[step]['input'], \
                     f"Input parameter {input_param} not found for step {step}"
 
             # Register output parameters
             output_name = f'{tool_name}/{_strip_wep_param(props["ResultPath"])}'
-            rval[step].setdefault('output', []).append(output_name)
+            step_info[step].setdefault('output', []).append(output_name)
 
             # Set position
-            rval[step]['pos'] = pos
+            step_info[step]['pos'] = pos
             pos += 1
 
         # Set next step
@@ -102,7 +101,7 @@ def _parse_wep(wep: dict, main_endpoint: str):
         assert step in wep['States'], f"Step {step} not found in WEP file"
         props = wep['States'][step]
 
-    return rval, links
+    return step_info, param_links
 
 
 class LpProvCrate:
@@ -190,13 +189,14 @@ class LpProvCrate:
         # TODO: use links to create formal parameters
         step_info, param_links = _parse_wep(wep, 'data_store_ep_id')
 
-        # Add workflow
-        wf = self.add_workflow(wep_file)
-
+        # TODO: we're assuming that all parameters are files
         param_props = {
             '@type': 'FormalParameter',
             'additionalType': 'File'
         }
+
+        # Add workflow
+        wf = self.add_workflow(wep_file)
 
         for input in step_info['main'].get('input', []):
             input_ent = self.add_parameter(f'{wf.id}#{input}', input, param_props)
@@ -207,22 +207,22 @@ class LpProvCrate:
             wf.append_to('output', output_ent)
 
         # Add steps
-        for step_id, info in step_info.items():
+        for step_id, step_info in step_info.items():
             if step_id == 'main':
                 continue  # Main represents the workflow, not a step
-            step_ent = self.add_step(f'{wf.id}#main/{step_id}', str(info['pos']))
+            step_ent = self.add_step(f'{wf.id}#main/{step_id}', str(step_info['pos']))
             wf.append_to('step', step_ent)
 
             # Add tool
-            props = wep['States'][step_id]
-            name = props["ActionUrl"]
-            tool_ent = self.add_tool(f'{wf.id}#{name}', name, props['Comment'])
+            step_props = wep['States'][step_id]
+            name = step_props["ActionUrl"]
+            tool_ent = self.add_tool(f'{wf.id}#{name}', name, step_props['Comment'])
 
-            for input in info['input']:
+            for input in step_info['input']:
                 input_ent = self.add_parameter(f'{wf.id}#{input}', input, param_props)
                 tool_ent.append_to('input', input_ent)
 
-            for output in info['output']:
+            for output in step_info['output']:
                 output_ent = self.add_parameter(f'{wf.id}#{output}', output, param_props)
                 tool_ent.append_to('output', output_ent)
 

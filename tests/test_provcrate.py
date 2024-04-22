@@ -208,7 +208,7 @@ def test_prov_crate_from_wep():
         crate = LpProvCrate(d)
         crate.build_from_wep(input_wep)
 
-        # Hacks to handle things that don't make sense in globus
+        # TODO: Hacks to handle things that don't make sense in globus
         ent = crate.crate.get("WEP.json#main/input")
         ent['defaultValue'] = 'file:///home/stain/src/cwltool/tests/wf/hello.txt'
         # TODO: can probably handle this?
