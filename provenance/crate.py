@@ -1,4 +1,5 @@
 import json
+import uuid
 from collections import defaultdict
 from pathlib import Path
 
@@ -27,7 +28,7 @@ def _parse_wep(wep: dict, main_endpoint: str):
     seen = {step}  # Check we don't get stuck in a loop
 
     step_info = defaultdict(dict)
-    param_links = []
+    param_links = defaultdict(list)
 
     pos = 0
     while True:
@@ -74,7 +75,7 @@ def _parse_wep(wep: dict, main_endpoint: str):
                     step_info[dest_step].setdefault('input', []).append(dest_name)
 
                 # Link parameters
-                param_links.append((source_name, dest_name))
+                param_links[dest_step].append((source_name, dest_name))
 
         else:  # Not a transfer step
             # Check that input parameters are already registered (by previous transfer step)
@@ -206,12 +207,24 @@ class LpProvCrate:
             output_ent = self.add_parameter(f'{wf.id}#{output}', output, param_props)
             wf.append_to('output', output_ent)
 
+        if 'main' in param_links:
+            wf['connection'] = [
+                {'@id': self.add_parameter_connection(source, target).id}
+                for source, target in param_links['main']
+            ]
+
         # Add steps
         for step_id, step_info in step_info.items():
             if step_id == 'main':
                 continue  # Main represents the workflow, not a step
             step_ent = self.add_step(f'{wf.id}#main/{step_id}', str(step_info['pos']))
             wf.append_to('step', step_ent)
+
+            if step_id in param_links:
+                step_ent['connection'] = [
+                    {'@id': self.add_parameter_connection(source, target).id}
+                    for source, target in param_links[step_id]
+                ]
 
             # Add tool
             step_props = wep['States'][step_id]
@@ -274,6 +287,17 @@ class LpProvCrate:
             properties['name'] = name
 
         return self.crate.add(ContextEntity(self.crate, id, properties=properties))
+
+    def add_parameter_connection(self, source_id, target_id):
+        id = f'#{uuid.uuid4()}'
+
+        props = {
+            '@type': 'ParameterConnection',
+            'sourceParameter': {'@id': source_id},
+            'targetParameter': {'@id': target_id}
+        }
+
+        return self.crate.add(ContextEntity(self.crate, id, props))
 
     def add_file(self, path: str):
         self.crate.add_file(path)
