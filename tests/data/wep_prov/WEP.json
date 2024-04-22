@@ -1,6 +1,25 @@
 {
     "States": {
-        "main/rev": {
+        "main_rev_transfer": {
+            "Comment": "Transfer input to rev step",
+            "Type": "Action",
+            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "Parameters": {
+                "source_endpoint_id.$": "$.data_store_ep_id",
+                "destination_endpoint_id.$": "$.rev",
+                "transfer_items": [
+                    {
+                        "source_path.$": "$.input",
+                        "destination_path.$": "$.input",
+                        "recursive": true
+                    }
+                ]
+            },
+            "ResultPath": "$.??",
+            "WaitTime": 600,
+            "Next": "rev"
+        },
+        "rev": {
             "ActionScope": "https://auth.globus.org/scopes/ca022ddb-b17d-4004-b600-4f15354a297c/action_provider_operations",
             "ActionUrl": "revtool.cwl",
             "Comment": "Reverse each line using the `rev` command",
@@ -10,9 +29,47 @@
             },
             "ResultPath": "$.output",
             "WaitTime": 6000,
-            "Next": "fastText_statistics_transfer"
+            "Next": "main_sorted_transfer"
         },
-        "main/sorted": {
+        "main_sorted_transfer": {
+            "Comment": "Transfer a input to sorted step",
+            "Type": "Action",
+            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "Parameters": {
+                "source_endpoint_id.$": "$.data_store_ep_id",
+                "destination_endpoint_id.$": "$.sorted",
+                "transfer_items": [
+                    {
+                        "source_path.$": "$.reverse_sort",
+                        "destination_path.$": "$.reverse",
+                        "recursive": true
+                    }
+                ]
+            },
+            "ResultPath": "$.??",
+            "WaitTime": 600,
+            "Next": "rev_sorted_transfer"
+        },
+        "rev_sorted_transfer": {
+            "Comment": "Transfer a directory to datastore",
+            "Type": "Action",
+            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "Parameters": {
+                "source_endpoint_id.$": "$.rev",
+                "destination_endpoint_id.$": "$.sorted",
+                "transfer_items": [
+                    {
+                        "source_path.$": "$.output",
+                        "destination_path.$": "$.input",
+                        "recursive": true
+                    }
+                ]
+            },
+            "ResultPath": "$.??",
+            "WaitTime": 600,
+            "Next": "sorted"
+        },
+        "sorted": {
             "ActionScope": "https://auth.globus.org/scopes/feda0005-01ad-414d-81ce-dcc5b7f61a1f/action_provider_operations",
             "ActionUrl": "sorttool.cwl",
             "Comment": "Sort lines using the `sort` command",
@@ -23,28 +80,28 @@
             },
             "ResultPath": "$.output",
             "WaitTime": 6000,
-            "Next": "langdetect_statistics_transfer"
+            "Next": "sorted_main_transfer"
         },
-        "statistics_DS_transfer": {
-            "Comment": "Transfer a directory to datastore",
+        "sorted_main_transfer": {
+            "Comment": "Transfer output back to datastore",
             "Type": "Action",
             "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
             "Parameters": {
-                "source_endpoint_id.$": "$.input.statistics_ep_id",
-                "destination_endpoint_id.$": "$.input.data_store_ep_id",
+                "source_endpoint_id.$": "$.sorted",
+                "destination_endpoint_id.$": "$.data_store_ep_id",
                 "transfer_items": [
                     {
-                        "source_path.$": "$.input.statistics_path",
-                        "destination_path.$": "$.input.datastore_path",
+                        "source_path.$": "$.output",
+                        "destination_path.$": "$.output",
                         "recursive": true
                     }
                 ]
             },
-            "ResultPath": "$.statistics_DS_transfer",
+            "ResultPath": "$.??",
             "WaitTime": 600,
             "End": true
         }
     },
     "Comment": "Flow with states: DS_fastText_Transfer, fastText, fastText_statistics_transfer, DS_langDetect_transfer, langdetect, langdetect_statistics_transfer, statistics, statistics_DS_transfer",
-    "StartAt": "DS_fastText_Transfer"
+    "StartAt": "main_rev_transfer"
 }

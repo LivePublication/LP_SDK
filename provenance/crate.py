@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 from pathlib import Path
 
 from rocrate.model import ContextEntity, ComputationalWorkflow
@@ -13,6 +14,85 @@ from runcrate import convert
 #   - hasPart
 #   - mainEntity: .wep?
 #   - mentions: run of workflow?
+
+
+def _strip_wep_param(param: str):
+    return param[2:]
+
+
+def _parse_wep(wep: dict, main_endpoint: str):
+    """Parses states in a WEP file to determine order, extract parameters, and link parameters"""
+    step = wep['StartAt']
+    props = wep['States'][step]
+    seen = {step}  # Check we don't get stuck in a loop
+
+    rval = defaultdict(dict)
+    links = []
+
+    pos = 0
+    while True:
+        is_transfer = props['ActionUrl'] == 'https://actions.automate.globus.org/transfer/transfer'
+        if is_transfer:
+            # Link the output of one step to the input of another
+            source_step = _strip_wep_param(props['Parameters']['source_endpoint_id.$'])
+            if source_step == main_endpoint:
+                source_step = 'main'
+
+            dest_step = _strip_wep_param(props['Parameters']['destination_endpoint_id.$'])
+            if dest_step == main_endpoint:
+                dest_step = 'main'
+
+            for transfers in props['Parameters']['transfer_items']:
+                source_path = _strip_wep_param(transfers['source_path.$'])
+                dest_path = _strip_wep_param(transfers['destination_path.$'])
+
+                # Parameter name
+                source_name = f'{source_step}/{source_path}'
+                dest_name = f'{dest_step}/{dest_path}'
+
+                # Transfers to/from main are input-input, output-output
+                # Transfers between steps are output-input
+                if source_step == 'main':
+                    rval['main'].setdefault('input', []).append(source_name)
+                else:
+                    # Inputs from previous steps should already be defined
+                    assert source_name in rval[source_step]['output'], \
+                        f"Output parameter {source_name} not found for step {source_step}"
+                    rval[source_step].setdefault('output', []).append(source_name)
+
+                if dest_step == 'main':
+                    rval['main'].setdefault('output', []).append(dest_name)
+                else:
+                    rval[dest_step].setdefault('input', []).append(dest_name)
+
+                # Link parameters
+                links.append((source_name, dest_name))
+
+        else:  # Not a transfer step
+            # Check that input parameters are already registered (by previous transfer step)
+            for input_param in props['Parameters'].values():
+                input_name = f'{step}/{_strip_wep_param(input_param)}'
+                assert input_name in rval[step]['input'], \
+                    f"Input parameter {input_param} not found for step {step}"
+
+            # Register output parameters
+            output_name = f'{step}/{_strip_wep_param(props["ResultPath"])}'
+            rval[step].setdefault('output', []).append(output_name)
+
+            # Set position
+            rval[step]['pos'] = pos
+            pos += 1
+
+        # Set next step
+        if "Next" not in props or props.get("End", False):
+            break
+        step = props["Next"]
+        assert step not in seen, f"Loop detected in WEP file at: {step}"
+        seen.add(step)
+        assert step in wep['States'], f"Step {step} not found in WEP file"
+        props = wep['States'][step]
+
+    return rval, links
 
 
 class LpProvCrate:
@@ -93,10 +173,23 @@ class LpProvCrate:
         profile_entities = [self.add_profile(f'{p[0]}{p[1]}', p[2], p[1]) for p in profiles]
         self.crate.root_dataset['conformsTo'] = profile_entities
 
-        wf = self.add_workflow(wep_file)
-
         with open(wep_file, 'r') as f:
             wep = json.load(f)
+
+        # Parse WEP file
+        # TODO: use links to create formal parameters
+        step_info, param_links = _parse_wep(wep, 'data_store_ep_id')
+
+        # Add workflow
+        wf = self.add_workflow(wep_file)
+
+        for input in step_info['main'].get('input', []):
+            input_ent = self.add_parameter(f'{wf.id}#{input}')
+            wf.append_to('input', input_ent)
+
+        for output in step_info['main'].get('output', []):
+            output_ent = self.add_parameter(f'{wf.id}#{output}')
+            wf.append_to('output', output_ent)
 
         # Add steps
         for step_id, props in wep['States'].items():
