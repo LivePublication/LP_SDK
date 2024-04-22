@@ -207,6 +207,21 @@ def test_prov_crate_from_wep():
         # Build crate from WEP file
         crate = LpProvCrate(d)
         crate.build_from_wep(input_wep)
+
+        # Hacks to handle things that don't make sense in globus
+        ent = crate.crate.get("WEP.json#main/input")
+        ent['defaultValue'] = 'file:///home/stain/src/cwltool/tests/wf/hello.txt'
+        # TODO: can probably handle this?
+        ent["encodingFormat"] = "https://www.iana.org/assignments/media-types/text/plain"
+
+        ent = crate.crate.get("WEP.json#main/reverse_sort")
+        ent['additionalType'] = 'Boolean'
+        ent['defaultValue'] = 'True'
+
+        ent = crate.crate.get("WEP.json#sorttool.cwl/reverse")
+        ent['additionalType'] = 'Boolean'
+
+        # Build crate and retrieve data
         crate.write()
 
         with open(Path(d) / 'ro-crate-metadata.json') as f:

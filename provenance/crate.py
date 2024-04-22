@@ -183,12 +183,17 @@ class LpProvCrate:
         # Add workflow
         wf = self.add_workflow(wep_file)
 
+        param_props = {
+            '@type': 'FormalParameter',
+            'additionalType': 'File'
+        }
+
         for input in step_info['main'].get('input', []):
-            input_ent = self.add_parameter(f'{wf.id}#{input}')
+            input_ent = self.add_parameter(f'{wf.id}#{input}', input, param_props)
             wf.append_to('input', input_ent)
 
         for output in step_info['main'].get('output', []):
-            output_ent = self.add_parameter(f'{wf.id}#{output}')
+            output_ent = self.add_parameter(f'{wf.id}#{output}', output, param_props)
             wf.append_to('output', output_ent)
 
         # Add steps
