@@ -1,7 +1,12 @@
 [project]
 name = "LP-SDK"
+authors = [
+    {name = "Cornelis Drost", email="nelis.drost@auckland.ac.nz"},
+    {name = "Augustus Ellerm", email="gus.ellerm@pg.canterbury.ac.nz"}
+]
 version = "0.0.1"
 description = "Live Publication SDK"
+readme = "README.md"
 requires-python = ">=3.6"
 dependencies = [
     "click==8.1.7",
@@ -10,8 +15,18 @@ dependencies = [
     "runcrate==0.5.0",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest==8.1.1"]
+
 [project.scripts]
-cli = "parser.cli:cli"
+lp-sdk = "lp_sdk.parser.cli:cli"
+
+[project.urls]
+Homepage = "https://github.com/LivePublication"
+Repository = "https://github.com/LivePublication/LP_SDK"
+
+[tool.flit.module]
+name = "lp_sdk"
 
 [build-system]
 requires = ["flit_core<4"]
