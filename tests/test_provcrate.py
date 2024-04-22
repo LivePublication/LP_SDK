@@ -184,6 +184,7 @@ def test_create_prov_crate_from_cwl():
             actual = json.load(f)
 
     # Expected data
+    # TODO: the unit tests in runcrate expect more than this, but also read more than just the .cwl file
     with open(Path(__file__).parent / 'data' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 

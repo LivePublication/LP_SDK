@@ -32,6 +32,10 @@ class LpProvCrate:
         profile_entities = [self.add_profile(f'{p[0]}{p[1]}', p[2], p[1]) for p in profiles]
         self.crate.root_dataset['conformsTo'] = profile_entities
 
+        # TODO: everything below is a MVP re-implementation of runcrate.convert.ProvCrateBuilder
+        #       this should serve as a skeleton from which to build the WEP implementation
+        #       but should eventually be refactored so that we can handle both in full detail
+
         # Add workflow
         wf_defs = convert.get_workflow(wf_file)
         wf = self.add_workflow(wf_file)
