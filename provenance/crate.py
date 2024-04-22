@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from rocrate.model import ContextEntity, ComputationalWorkflow
@@ -92,7 +93,18 @@ class LpProvCrate:
         profile_entities = [self.add_profile(f'{p[0]}{p[1]}', p[2], p[1]) for p in profiles]
         self.crate.root_dataset['conformsTo'] = profile_entities
 
-        self.add_workflow(wep_file)
+        wf = self.add_workflow(wep_file)
+
+        with open(wep_file, 'r') as f:
+            wep = json.load(f)
+
+        # Add steps
+        for state in wep['States']:
+            step_ent = self.add_step(f'{wep_file}#{state}', str(0))
+            wf.append_to('step', step_ent)
+
+            # Add tool
+
 
     def add_workflow(self, file: Path) -> ComputationalWorkflow:
         properties = {
