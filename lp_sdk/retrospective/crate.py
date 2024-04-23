@@ -24,8 +24,8 @@ class DistStepCrate:
     def add_position(self, task_id):
         position = self.crate.add(
             ContextEntity(
-                self.crate,
-                {
+                crate=self.crate,
+                properties={
                     '@type': 'HowToStep',
                     'position': task_id
                 }))
