@@ -3,6 +3,7 @@ import tempfile
 from pathlib import Path
 
 from lp_sdk.parser.retrospective import format_retro_rocrate, write_retro_rocrate
+from lp_sdk.retrospective.crate import DistStepCrate
 from lp_sdk.validation.util import CrateParts
 from lp_sdk.validation.validator import Comparator
 
@@ -10,12 +11,12 @@ from lp_sdk.validation.validator import Comparator
 def test_create_retro_crate():
     """TDD: manual creation of the retrospective parts of the crate"""
     with tempfile.TemporaryDirectory() as d:
-        out_file = Path(d) / 'ro_crate_metadata.json'
+        out_file = Path(d) / 'ro-crate-metadata.json'
 
-        crate = format_retro_rocrate({})
-        write_retro_rocrate(crate, out_file)
+        crate = DistStepCrate(d)
+        crate.write()
+
         assert out_file.exists()
-
         with open(Path(d) / 'ro-crate-metadata.json') as f:
             actual = json.load(f)
 
