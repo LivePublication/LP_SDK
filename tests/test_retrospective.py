@@ -2,6 +2,8 @@ import json
 import tempfile
 from pathlib import Path
 
+from rocrate.model import ContextEntity
+
 from lp_sdk.parser.retrospective import format_retro_rocrate, write_retro_rocrate
 from lp_sdk.retrospective.crate import DistStepCrate
 from lp_sdk.validation.util import CrateParts
@@ -14,6 +16,19 @@ def test_create_retro_crate():
         out_file = Path(d) / 'ro-crate-metadata.json'
 
         crate = DistStepCrate(d)
+
+        agent = 'https://orcid.org/0000-0001-9842-9718'  # replace with entity
+
+        crate.crate.add(ContextEntity(
+            crate.crate, '#d6ab3175-88f5-4b6a-b028-1b13e6d1a158',
+            {
+                '@type': 'OrganizeAction',
+                'name': 'Run of cwltool 1.0.20181012180214',
+                'startTime': '2018-10-25T15:46:35.210973',
+                'agent': {'@id': agent},
+            }
+        ))
+
         crate.write()
 
         assert out_file.exists()
