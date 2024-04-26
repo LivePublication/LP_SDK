@@ -42,23 +42,6 @@ def test_create_retro_crate():
                 ["True", "True"]])
         ]
 
-        # Add control actions
-        cont_1 = crate.crate.add(ContextEntity(
-            crate.crate, '#793b3df4-cbb7-4d17-94d4-0edb18566ed3',
-            {
-                '@type': 'ControlAction',
-                'name': 'orchestrate sorttool.cwl',
-            }
-        ))
-
-        cont_2 = crate.crate.add(ContextEntity(
-            crate.crate, '#4f7f887f-1b9b-4417-9beb-58618a125cc5',
-            {
-                '@type': 'ControlAction',
-                'name': 'orchestrate revtool.cwl',
-            }
-        ))
-
         # Add create action
         create_actions = [
             crate.crate.add(ContextEntity(
@@ -83,6 +66,26 @@ def test_create_retro_crate():
                 [[files[1]], [files[2]], [files[1]]],
             ])
         ]
+
+        # Add control actions
+        cont_1 = crate.crate.add(ContextEntity(
+            crate.crate, '#793b3df4-cbb7-4d17-94d4-0edb18566ed3',
+            {
+                '@type': 'ControlAction',
+                'name': 'orchestrate sorttool.cwl',
+                'object': {'@id': create_actions[2].id}
+            }
+        ))
+
+        cont_2 = crate.crate.add(ContextEntity(
+            crate.crate, '#4f7f887f-1b9b-4417-9beb-58618a125cc5',
+            {
+                '@type': 'ControlAction',
+                'name': 'orchestrate revtool.cwl',
+                'object': {'@id': create_actions[1].id}
+            }
+        ))
+
 
         # Add organize action
         agent = crate.crate.add(ContextEntity(
