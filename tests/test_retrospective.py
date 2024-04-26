@@ -11,11 +11,10 @@ from lp_sdk.validation.util import CrateParts
 from lp_sdk.validation.validator import Comparator
 
 
-def test_create_retro_crate():
+def test_create_retro_crate_manual():
     """TDD: manual creation of the retrospective parts of the crate"""
     with tempfile.TemporaryDirectory() as d:
         d = Path(d)
-        out_file = d / 'ro-crate-metadata.json'
 
         # Create crate
         crate = DistStepCrate(d)
@@ -126,7 +125,6 @@ def test_create_retro_crate():
 
         crate.write()
 
-        assert out_file.exists()
         with open(d / 'ro-crate-metadata.json') as f:
             actual = json.load(f)
 
