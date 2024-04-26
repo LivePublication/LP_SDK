@@ -17,6 +17,24 @@ def test_create_retro_crate():
 
         crate = DistStepCrate(d)
 
+        # Add control actions
+        cont_1 = crate.crate.add(ContextEntity(
+            crate.crate, '#793b3df4-cbb7-4d17-94d4-0edb18566ed3',
+            {
+                '@type': 'ControlAction',
+                'name': 'orchestrate sorttool.cwl',
+            }
+        ))
+
+        cont_2 = crate.crate.add(ContextEntity(
+            crate.crate, '#4f7f887f-1b9b-4417-9beb-58618a125cc5',
+            {
+                '@type': 'ControlAction',
+                'name': 'orchestrate revtool.cwl',
+            }
+        ))
+
+        # Add organize action
         agent = 'https://orcid.org/0000-0001-9842-9718'  # replace with entity
 
         crate.crate.add(ContextEntity(
@@ -26,6 +44,7 @@ def test_create_retro_crate():
                 'name': 'Run of cwltool 1.0.20181012180214',
                 'startTime': '2018-10-25T15:46:35.210973',
                 'agent': {'@id': agent},
+                'object': [{'@id': cont_1['@id']}, {'@id': cont_2['@id']}]
             }
         ))
 
