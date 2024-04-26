@@ -250,7 +250,7 @@ def test_create_retro_crate():
         comp = Comparator([CrateParts.retrospective],
                           [CrateParts.prospective, CrateParts.metadata, CrateParts.orchestration, CrateParts.other],
                           expected)
-        # comp.compare(actual)
+        comp.compare(actual)
 
 
 def test_retrospective():
