@@ -53,9 +53,10 @@ def test_create_retro_crate():
                     'endTime': end_time,
                     'object': [{'@id': o.id} for o in objects],
                     'result': [{'@id': o.id} for o in results],
+                    'instrument': {'@id': instrument},
                 }
             ))
-            for _id, start_time, end_time, name, objects, results in zip(*[
+            for _id, start_time, end_time, name, objects, results, instrument in zip(*[
                 ['#4154dad3-00cc-4e35-bb8f-a2de5cd7dc49', '#6933cce1-f8f0-4032-8848-e0fc9166e92f',
                  '#9eac64b2-c2c8-401f-9af8-7cfb0e998107'],
                 ['2018-10-25T15:46:35.211153', '2018-10-25T15:46:35.314101', '2018-10-25T15:46:36.975235'],
@@ -64,6 +65,7 @@ def test_create_retro_crate():
                  'Run of workflow/packed.cwl#main/sorted'],
                 [[files[0], property_values[0]], [files[0]], [files[2], property_values[1]]],
                 [[files[1]], [files[2]], [files[1]]],
+                ['packed.cwl', 'packed.cwl#revtool.cwl', 'packed.cwl#sorttool.cwl']
             ])
         ]
 
@@ -73,7 +75,8 @@ def test_create_retro_crate():
             {
                 '@type': 'ControlAction',
                 'name': 'orchestrate sorttool.cwl',
-                'object': {'@id': create_actions[2].id}
+                'object': {'@id': create_actions[2].id},
+                'instrument': {'@id': 'packed.cwl#main/sorted'}
             }
         ))
 
@@ -82,7 +85,8 @@ def test_create_retro_crate():
             {
                 '@type': 'ControlAction',
                 'name': 'orchestrate revtool.cwl',
-                'object': {'@id': create_actions[1].id}
+                'object': {'@id': create_actions[1].id},
+                'instrument': {'@id': 'packed.cwl#main/rev'}
             }
         ))
 
@@ -103,7 +107,8 @@ def test_create_retro_crate():
                 'startTime': '2018-10-25T15:46:35.210973',
                 'agent': {'@id': agent.id},
                 'object': [{'@id': cont_1.id}, {'@id': cont_2.id}],
-                'result': {'@id': create_actions[0].id}
+                'result': {'@id': create_actions[0].id},
+                'instrument': {'@id': '#a73fd902-8d14-48c9-835b-a5ba2f9149fd'}  # CWL software
             }
         ))
 
