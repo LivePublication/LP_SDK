@@ -157,7 +157,7 @@ def test_create_retro_crate():
     }
     step_data = [
         {
-            'control': '#4f7f887f-1b9b-4417-9beb-58618a125cc5',
+            '@id': '#4f7f887f-1b9b-4417-9beb-58618a125cc5',
             'name': 'orchestrate revtool.cwl',
             'create': {
                 '@id': '#6933cce1-f8f0-4032-8848-e0fc9166e92f',
@@ -169,7 +169,7 @@ def test_create_retro_crate():
             }
         },
         {
-            'control': '#793b3df4-cbb7-4d17-94d4-0edb18566ed3',
+            '@id': '#793b3df4-cbb7-4d17-94d4-0edb18566ed3',
             'name': 'orchestrate sorttool.cwl',
             'create': {
                 '@id': '#9eac64b2-c2c8-401f-9af8-7cfb0e998107',
@@ -218,6 +218,9 @@ def test_create_retro_crate():
         # Step actions
         for step in step_data:
             create_ent = _add_create(step['create'])
+
+            control_ent = crate.add_control_action(step['@id'], step['name'], create_ent)
+
 
         # Workflow action
         create_ent = _add_create(workflow_data)

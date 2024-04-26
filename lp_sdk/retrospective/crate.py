@@ -33,6 +33,16 @@ class DistStepCrate:
 
         self.crate.mainEntity['step'] = position
 
+    def add_control_action(self, id: str, name: str, create_action: ContextEntity):
+        return self.crate.add(ContextEntity(
+            self.crate,
+            identifier=id, properties={
+                '@type': 'ControlAction',
+                'name': name,
+                'object': {'@id': create_action.id}
+            }
+        ))
+
     def add_create_action(self, id, properties):
         return self.crate.add(ContextEntity(
             self.crate,
