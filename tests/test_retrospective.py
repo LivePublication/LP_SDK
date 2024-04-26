@@ -136,6 +136,27 @@ def test_create_retro_crate_manual():
     comp.compare(actual)
 
 
+def test_create_retro_crate():
+    """TDD: create retrospective crate using tooling"""
+    with tempfile.TemporaryDirectory() as d:
+        d = Path(d)
+
+        # Create crate
+        crate = DistStepCrate(d)
+
+        crate.write()
+
+        with open(d / 'ro-crate-metadata.json') as f:
+            actual = json.load(f)
+
+    with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
+        expected = json.load(f)
+
+    comp = Comparator([CrateParts.retrospective], [CrateParts.prospective, CrateParts.metadata, CrateParts.orchestration, CrateParts.other],
+                      expected)
+    comp.compare(actual)
+
+
 def test_retrospective():
     # This is more documentation that test, for now
     # Get data from the action provider on execution statues, e.g.:
