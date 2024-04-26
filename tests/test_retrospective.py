@@ -50,8 +50,8 @@ def test_create_retro_crate():
                  '#9eac64b2-c2c8-401f-9af8-7cfb0e998107'],
                 ['2018-10-25T15:46:35.211153', '2018-10-25T15:46:35.314101', '2018-10-25T15:46:36.975235'],
                 ['2018-10-25T15:46:43.020168', '2018-10-25T15:46:36.967359', '2018-10-25T15:46:38.069110'],
-                ['Run of workflow/WEP.json#main', 'Run of workflow/WEP.json#main/rev',
-                 'Run of workflow/WEP.json#main/sorted']
+                ['Run of workflow/packed.cwl#main', 'Run of workflow/packed.cwl#main/rev',
+                 'Run of workflow/packed.cwl#main/sorted']
             ])
         ]
 
