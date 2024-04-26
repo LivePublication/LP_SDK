@@ -153,7 +153,7 @@ def test_create_retro_crate():
             {'@id': '327fc7aedf4f6b69a42a7c8b808dc5a7aff61376'},
             {'@id': '#pv-main/reverse_sort', 'value': 'True', 'name': 'main/reverse_sort'}
         ],
-        'result': [{'@id': 'b9214658cc453331b62c2282b772a5c063dbd284'}],
+        'outputs': [{'@id': 'b9214658cc453331b62c2282b772a5c063dbd284'}],
     }
     step_data = [
         {
@@ -192,26 +192,31 @@ def test_create_retro_crate():
         # Create crate
         crate = DistStepCrate(d)
 
+        def _add_file_props(items):
+            rval = []
+            for item in items:
+                _id = item['@id']
+                if (source_dir / _id).exists():
+                    shutil.copy(source_dir / _id, d)
+                    rval.append(crate.add_file(d / _id))
+                else:
+                    rval.append(crate.add_property(_id, item['name'], item['value']))
+            return rval
+
+        def _add_create(data):
+            inputs = _add_file_props(data['inputs'])
+            outputs = _add_file_props(data['outputs'])
+
+            return crate.add_create_action(data['@id'], {
+                'startTime': data['startTime'],
+                'endTime': data['endTime'],
+                'name': data['name'],
+                'object': [{'@id': i.id} for i in inputs],
+                'result': [{'@id': o.id} for o in outputs],
+            })
+
         for step in step_data:
-            create = step['create']
-
-            inputs = []
-            for item in create['inputs']:
-                _id = item['@id']
-                if (source_dir / _id).exists():
-                    shutil.copy(source_dir / _id, d)
-                    inputs.append(crate.add_file(d / _id))
-                else:
-                    inputs.append(crate.add_property(_id, item['name'], item['value']))
-
-            outputs = []
-            for item in create['outputs']:
-                _id = item['@id']
-                if (source_dir / _id).exists():
-                    shutil.copy(source_dir / _id, d)
-                    outputs.append(crate.add_file(d / _id))
-                else:
-                    outputs.append(crate.add_property(_id, item['name'], item['value']))
+            create_ent = _add_create(step['create'])
 
         # First gen the distributed step crate - missing all links to prospective data
         crate.write()
