@@ -243,7 +243,9 @@ def test_comparator_succeeds():
     with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
-    comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.orchestration, CrateParts.other], expected)
+    comp = Comparator([CrateParts.prospective, CrateParts.metadata,
+                       CrateParts.orchestration, CrateParts.other], [],
+                      expected)
     assert comp.compare(actual), "Expected comparator to confirm partial match"
 
 
@@ -255,7 +257,9 @@ def test_comparator_fails(commands: _TestCommands):
         expected = json.load(f)
 
     with pytest.raises(AssertionError):
-        comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.orchestration, CrateParts.other], expected)
+        comp = Comparator([CrateParts.prospective, CrateParts.metadata,
+                           CrateParts.orchestration, CrateParts.other], [],
+                          expected)
         assert comp.compare(actual), "Expected comparator to confirm partial match"
 
 

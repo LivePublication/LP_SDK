@@ -152,7 +152,8 @@ def test_create_prov_crate():
     with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
-    comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.other, CrateParts.orchestration],
+    comp = Comparator([CrateParts.prospective, CrateParts.metadata,
+                       CrateParts.other, CrateParts.orchestration], [],
                       expected)
     comp.compare(actual)
 
@@ -188,7 +189,8 @@ def test_create_prov_crate_from_cwl():
     with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
-    comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.other, CrateParts.orchestration],
+    comp = Comparator([CrateParts.prospective, CrateParts.metadata,
+                       CrateParts.other, CrateParts.orchestration], [],
                       expected)
     comp.compare(actual)
 
@@ -235,6 +237,7 @@ def test_prov_crate_from_wep():
     with open(Path(__file__).parent / 'data' / 'wep_prov' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
-    comp = Comparator([CrateParts.prospective, CrateParts.metadata, CrateParts.other, CrateParts.orchestration],
+    comp = Comparator([CrateParts.prospective, CrateParts.metadata,
+                       CrateParts.other, CrateParts.orchestration], [],
                       expected)
     comp.compare(actual)

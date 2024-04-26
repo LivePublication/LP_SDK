@@ -3,10 +3,13 @@ from lp_sdk.validation.util import CrateParts, detect_crate_type
 
 class Comparator:
     """Utility class for comparing two partial crates"""
-    def __init__(self, parts_to_check: list[CrateParts], expected: dict):
+    def __init__(self, parts_to_check: list[CrateParts], include_refs_to: list[CrateParts], expected: dict):
         self.expected = expected
         self.graph_dict = {item['@id']: item for item in expected['@graph']}
+        # Items that will be compared if found in the expected graph
         self.parts_to_check = parts_to_check
+        # Items which may not be in the actual graph, but will still be considered if they are referenced
+        self.include_refs_to = include_refs_to
 
     def _consider_id(self, item: dict) -> bool:
         """Check if a given id is in the expected graph, and of a type we care about"""
@@ -15,10 +18,19 @@ class Comparator:
         assert '@id' in item, f"Item {item} does not have an id"
         id = item['@id']
 
+        # Check if passed item is complete, or a reference
+        is_ref = set(item.keys()) == {'@id'}
+
+        # Item is reference only in expected data - most likely an external link to policy, standard, etc.
         if id not in self.graph_dict:
             return True
 
-        return detect_crate_type(self.graph_dict[id]) in self.parts_to_check
+        if is_ref:
+            # Items that should be referenced, even if missing from @graph
+            return detect_crate_type(self.graph_dict[id]) in self.include_refs_to + self.parts_to_check
+        else:
+            # Items that should be present in @graph
+            return detect_crate_type(self.graph_dict[id]) in self.parts_to_check
 
     def _filter_list(self, items: list[dict]) -> list[dict]:
         """Filter out items that are not in the expected graph, or are of a type we do not care about"""
