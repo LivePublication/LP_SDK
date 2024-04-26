@@ -1,4 +1,5 @@
 import json
+import shutil
 import tempfile
 from pathlib import Path
 
@@ -13,9 +14,33 @@ from lp_sdk.validation.validator import Comparator
 def test_create_retro_crate():
     """TDD: manual creation of the retrospective parts of the crate"""
     with tempfile.TemporaryDirectory() as d:
-        out_file = Path(d) / 'ro-crate-metadata.json'
+        d = Path(d)
+        out_file = d / 'ro-crate-metadata.json'
 
+        # Create crate
         crate = DistStepCrate(d)
+
+        # Add files
+        files = []
+        for _id in ['327fc7aedf4f6b69a42a7c8b808dc5a7aff61376', 'b9214658cc453331b62c2282b772a5c063dbd284',
+                       '97fe1b50b4582cebc7d853796ebd62e3e163aa3f']:
+            shutil.copy(Path(__file__).parent / 'data' / 'cwl_prov' / f'{_id}', d)
+            files.append(crate.crate.add_file(d / _id))
+
+        property_values = [
+            crate.crate.add(ContextEntity(
+                crate.crate, _id,
+                {
+                    '@type': 'PropertyValue',
+                    'name': name,
+                    'value': value,
+                }
+            ))
+            for _id, name, value in zip(*[
+                ['#pv-main/reverse_sort', '#pv-main/sorted/reverse'],
+                ['main/reverse_sort', 'main/sorted/reverse'],
+                ["True", "True"]])
+        ]
 
         # Add control actions
         cont_1 = crate.crate.add(ContextEntity(
@@ -43,15 +68,19 @@ def test_create_retro_crate():
                     'name': name,
                     'startTime': start_time,
                     'endTime': end_time,
+                    'object': [{'@id': o.id} for o in objects],
+                    'result': [{'@id': o.id} for o in results],
                 }
             ))
-            for _id, start_time, end_time, name in zip(*[
+            for _id, start_time, end_time, name, objects, results in zip(*[
                 ['#4154dad3-00cc-4e35-bb8f-a2de5cd7dc49', '#6933cce1-f8f0-4032-8848-e0fc9166e92f',
                  '#9eac64b2-c2c8-401f-9af8-7cfb0e998107'],
                 ['2018-10-25T15:46:35.211153', '2018-10-25T15:46:35.314101', '2018-10-25T15:46:36.975235'],
                 ['2018-10-25T15:46:43.020168', '2018-10-25T15:46:36.967359', '2018-10-25T15:46:38.069110'],
                 ['Run of workflow/packed.cwl#main', 'Run of workflow/packed.cwl#main/rev',
-                 'Run of workflow/packed.cwl#main/sorted']
+                 'Run of workflow/packed.cwl#main/sorted'],
+                [[files[0], property_values[0]], [files[0]], [files[2], property_values[1]]],
+                [[files[1]], [files[2]], [files[1]]],
             ])
         ]
 
@@ -78,7 +107,7 @@ def test_create_retro_crate():
         crate.write()
 
         assert out_file.exists()
-        with open(Path(d) / 'ro-crate-metadata.json') as f:
+        with open(d / 'ro-crate-metadata.json') as f:
             actual = json.load(f)
 
     with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
