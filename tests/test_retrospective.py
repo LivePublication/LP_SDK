@@ -1,4 +1,5 @@
 import json
+import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -138,23 +139,37 @@ def test_create_retro_crate_manual():
 
 def test_create_retro_crate():
     """TDD: create retrospective crate using tooling"""
+    # Expected result
+    with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
+        expected = json.load(f)
+
     with tempfile.TemporaryDirectory() as d:
         d = Path(d)
 
         # Create crate
         crate = DistStepCrate(d)
 
+        # First gen the distributed step crate - missing all links to prospective data
+        crate.write()
+        with open(d / 'ro-crate-metadata.json') as f:
+            actual = json.load(f)
+
+        comp = Comparator([CrateParts.retrospective], [], expected)
+        comp.compare(actual)
+        os.remove(d / 'ro-crate-metadata.json')
+
+        # Next (separate test?) link back to prospective data, using cwl (or if possible, only prospective) as reference
+        # TODO
+
         crate.write()
 
         with open(d / 'ro-crate-metadata.json') as f:
             actual = json.load(f)
 
-    with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
-        expected = json.load(f)
-
-    comp = Comparator([CrateParts.retrospective], [CrateParts.prospective, CrateParts.metadata, CrateParts.orchestration, CrateParts.other],
-                      expected)
-    comp.compare(actual)
+        comp = Comparator([CrateParts.retrospective],
+                          [CrateParts.prospective, CrateParts.metadata, CrateParts.orchestration, CrateParts.other],
+                          expected)
+        comp.compare(actual)
 
 
 def test_retrospective():
