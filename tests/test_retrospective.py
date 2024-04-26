@@ -22,10 +22,19 @@ def test_create_retro_crate():
 
         # Add files
         files = []
-        for _id in ['327fc7aedf4f6b69a42a7c8b808dc5a7aff61376', 'b9214658cc453331b62c2282b772a5c063dbd284',
-                       '97fe1b50b4582cebc7d853796ebd62e3e163aa3f']:
+        for _id, examples in zip(*[['327fc7aedf4f6b69a42a7c8b808dc5a7aff61376', 'b9214658cc453331b62c2282b772a5c063dbd284',
+                       '97fe1b50b4582cebc7d853796ebd62e3e163aa3f'],
+            [
+                ['packed.cwl#main/input', 'packed.cwl#revtool.cwl/input'],
+                ["packed.cwl#main/output", "packed.cwl#sorttool.cwl/output"],
+                ["packed.cwl#revtool.cwl/output", "packed.cwl#sorttool.cwl/input"]
+            ]
+        ]):
             shutil.copy(Path(__file__).parent / 'data' / 'cwl_prov' / f'{_id}', d)
-            files.append(crate.crate.add_file(d / _id))
+            props = {
+                'exampleOfWork': [{'@id': e} for e in examples]
+            }
+            files.append(crate.crate.add_file(d / _id, properties=props))
 
         property_values = [
             crate.crate.add(ContextEntity(
@@ -34,12 +43,15 @@ def test_create_retro_crate():
                     '@type': 'PropertyValue',
                     'name': name,
                     'value': value,
+                    'exampleOfWork': {'@id': example},
                 }
             ))
-            for _id, name, value in zip(*[
+            for _id, name, value, example in zip(*[
                 ['#pv-main/reverse_sort', '#pv-main/sorted/reverse'],
                 ['main/reverse_sort', 'main/sorted/reverse'],
-                ["True", "True"]])
+                ["True", "True"],
+                ['packed.cwl#main/reverse_sort', 'packed.cwl#sorttool.cwl/reverse']
+            ])
         ]
 
         # Add create action
