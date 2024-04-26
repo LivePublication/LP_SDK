@@ -33,6 +33,20 @@ class DistStepCrate:
 
         self.crate.mainEntity['step'] = position
 
+    def add_organize_action(self, id: str, name: str, properties: dict, agent: ContextEntity,
+                            step_actions: list[ContextEntity], wf_action: ContextEntity):
+        return self.crate.add(ContextEntity(
+            self.crate,
+            identifier=id, properties={
+                '@type': 'OrganizeAction',
+                'name': name,
+                'object': [{'@id': act.id} for act in step_actions],
+                'result': {'@id': wf_action.id},
+                'agent': {'@id': agent.id},
+                **properties
+            }
+        ))
+
     def add_control_action(self, id: str, name: str, create_action: ContextEntity):
         return self.crate.add(ContextEntity(
             self.crate,
@@ -49,6 +63,15 @@ class DistStepCrate:
             identifier=id, properties={
                 '@type': 'CreateAction',
                 **properties
+            }
+        ))
+
+    def add_agent(self, id, name):
+        return self.crate.add(ContextEntity(
+            self.crate,
+            identifier=id, properties={
+                '@type': 'Person',
+                'name': name
             }
         ))
 

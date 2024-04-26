@@ -216,15 +216,19 @@ def test_create_retro_crate():
             })
 
         # Step actions
+        control_ents = []
         for step in step_data:
             create_ent = _add_create(step['create'])
 
-            control_ent = crate.add_control_action(step['@id'], step['name'], create_ent)
-
+            control_ents.append(crate.add_control_action(step['@id'], step['name'], create_ent))
 
         # Workflow action
-        create_ent = _add_create(workflow_data)
+        wf_create_ent = _add_create(workflow_data)
 
+        agent = crate.add_agent('https://orcid.org/0000-0001-9842-9718', 'Stian Soiland-Reyes')
+        org_ent = crate.add_organize_action('#d6ab3175-88f5-4b6a-b028-1b13e6d1a158', 'Run of cwltool 1.0.20181012180214',
+                                            {'startTime': '2018-10-25T15:46:35.210973'},
+                                            agent, control_ents, wf_create_ent)
 
         # First gen the distributed step crate - missing all links to prospective data
         crate.write()
