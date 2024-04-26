@@ -147,7 +147,7 @@ def test_create_retro_crate():
     workflow_data = {
         '@id': '#4154dad3-00cc-4e35-bb8f-a2de5cd7dc49',
         'startTime': '2018-10-25T15:46:35.211153',
-        'endTime': '2018-10-25T15:46:35.211153',
+        'endTime': '2018-10-25T15:46:43.020168',
         'name': 'Run of workflow/packed.cwl#main',
         'inputs': [
             {'@id': '327fc7aedf4f6b69a42a7c8b808dc5a7aff61376'},
@@ -215,8 +215,13 @@ def test_create_retro_crate():
                 'result': [{'@id': o.id} for o in outputs],
             })
 
+        # Step actions
         for step in step_data:
             create_ent = _add_create(step['create'])
+
+        # Workflow action
+        create_ent = _add_create(workflow_data)
+
 
         # First gen the distributed step crate - missing all links to prospective data
         crate.write()
