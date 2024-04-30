@@ -259,6 +259,23 @@ def test_create_retro_crate():
         #   link retro files/parameters back to prosp formalParameters
         #   note that this won't work with an arbitrary number of files, we'll need prospective data at dist generation then
 
+        # Still unclear how exactly to do this, so manual implementation for now in order to list all required parts
+        # Add instruments to org/create actions
+        crate = DistStepCrate(d)
+        org_ent = crate.crate.get_by_type('OrganizeAction')[0]
+        org_ent['instrument'] = {"@id": "#a73fd902-8d14-48c9-835b-a5ba2f9149fd"}
+
+        for _id, instrument in zip(*[['#4154dad3-00cc-4e35-bb8f-a2de5cd7dc49', '#6933cce1-f8f0-4032-8848-e0fc9166e92f',
+                                      '#9eac64b2-c2c8-401f-9af8-7cfb0e998107'],
+                                     ['packed.cwl', 'packed.cwl#revtool.cwl', 'packed.cwl#sorttool.cwl']]):
+            crate.crate.get(_id)['instrument'] = {'@id': instrument}
+
+        for _id, instrument in zip(*[['#4f7f887f-1b9b-4417-9beb-58618a125cc5', '#793b3df4-cbb7-4d17-94d4-0edb18566ed3'],
+                                     ['packed.cwl#main/rev', 'packed.cwl#main/sorted']]):
+            crate.crate.get(_id)['instrument'] = {'@id': instrument}
+
+        crate.write()
+
         with open(d / 'ro-crate-metadata.json') as f:
             actual = json.load(f)
 

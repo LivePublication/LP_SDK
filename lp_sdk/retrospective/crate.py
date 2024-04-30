@@ -7,7 +7,10 @@ from rocrate.rocrate import ROCrate
 class DistStepCrate:
     def __init__(self, path: str):
         self.path = Path(path)
-        self.crate = ROCrate()
+        if (self.path / 'ro-crate-metadata.json').exists():
+            self.crate = ROCrate(self.path)
+        else:
+            self.crate = ROCrate()
 
         self.build()
         self.files = {}
