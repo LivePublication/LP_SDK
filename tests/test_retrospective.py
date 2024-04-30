@@ -137,12 +137,8 @@ def test_create_retro_crate_manual():
     comp.compare(actual)
 
 
-def test_create_retro_crate():
-    """TDD: create retrospective crate using tooling"""
-    # Expected result
-    with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
-        expected = json.load(f)
-
+def _create_step_crate(tempDir: Path):
+    """Reusable creation of CWL step crate"""
     # Manually define the data - i.e.: the results of the run
     workflow_data = {
         '@id': '#4154dad3-00cc-4e35-bb8f-a2de5cd7dc49',
@@ -186,71 +182,90 @@ def test_create_retro_crate():
     ]
 
     source_dir = Path(__file__).parent / 'data' / 'cwl_prov'
+
+    # Create crate
+    crate = DistStepCrate(tempDir)
+
+    def _add_file_props(items):
+        rval = []
+        for item in items:
+            _id = item['@id']
+            if (source_dir / _id).exists():
+                shutil.copy(source_dir / _id, tempDir)
+                rval.append(crate.add_file(tempDir / _id))
+            else:
+                rval.append(crate.add_property(_id, item['name'], item['value']))
+        return rval
+
+    def _add_create(data):
+        inputs = _add_file_props(data['inputs'])
+        outputs = _add_file_props(data['outputs'])
+
+        return crate.add_create_action(data['@id'], {
+            'startTime': data['startTime'],
+            'endTime': data['endTime'],
+            'name': data['name'],
+            'object': [{'@id': i.id} for i in inputs],
+            'result': [{'@id': o.id} for o in outputs],
+        })
+
+    # Step actions
+    control_ents = []
+    for step in step_data:
+        create_ent = _add_create(step['create'])
+
+        control_ents.append(crate.add_control_action(step['@id'], step['name'], create_ent))
+
+    # Workflow action
+    wf_create_ent = _add_create(workflow_data)
+
+    agent = crate.add_agent('https://orcid.org/0000-0001-9842-9718', 'Stian Soiland-Reyes')
+    org_ent = crate.add_organize_action('#d6ab3175-88f5-4b6a-b028-1b13e6d1a158', 'Run of cwltool 1.0.20181012180214',
+                                        {'startTime': '2018-10-25T15:46:35.210973'},
+                                        agent, control_ents, wf_create_ent)
+
+    # Write the distributed step crate - missing all links to prospective data
+    crate.write()
+
+
+def test_create_dist_crate():
+    """TDD: create retrospective crate using tooling"""
+    # Expected result
+    with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
+        expected = json.load(f)
+
     with tempfile.TemporaryDirectory() as d:
         d = Path(d)
-
-        # Create crate
-        crate = DistStepCrate(d)
-
-        def _add_file_props(items):
-            rval = []
-            for item in items:
-                _id = item['@id']
-                if (source_dir / _id).exists():
-                    shutil.copy(source_dir / _id, d)
-                    rval.append(crate.add_file(d / _id))
-                else:
-                    rval.append(crate.add_property(_id, item['name'], item['value']))
-            return rval
-
-        def _add_create(data):
-            inputs = _add_file_props(data['inputs'])
-            outputs = _add_file_props(data['outputs'])
-
-            return crate.add_create_action(data['@id'], {
-                'startTime': data['startTime'],
-                'endTime': data['endTime'],
-                'name': data['name'],
-                'object': [{'@id': i.id} for i in inputs],
-                'result': [{'@id': o.id} for o in outputs],
-            })
-
-        # Step actions
-        control_ents = []
-        for step in step_data:
-            create_ent = _add_create(step['create'])
-
-            control_ents.append(crate.add_control_action(step['@id'], step['name'], create_ent))
-
-        # Workflow action
-        wf_create_ent = _add_create(workflow_data)
-
-        agent = crate.add_agent('https://orcid.org/0000-0001-9842-9718', 'Stian Soiland-Reyes')
-        org_ent = crate.add_organize_action('#d6ab3175-88f5-4b6a-b028-1b13e6d1a158', 'Run of cwltool 1.0.20181012180214',
-                                            {'startTime': '2018-10-25T15:46:35.210973'},
-                                            agent, control_ents, wf_create_ent)
-
-        # First gen the distributed step crate - missing all links to prospective data
-        crate.write()
-        with open(d / 'ro-crate-metadata.json') as f:
-            actual = json.load(f)
-
-        comp = Comparator([CrateParts.retrospective], [], expected)
-        comp.compare(actual)
-        os.remove(d / 'ro-crate-metadata.json')
-
-        # Next (separate test?) link back to prospective data, using cwl (or if possible, only prospective) as reference
-        # TODO
-
-        crate.write()
+        _create_step_crate(d)
 
         with open(d / 'ro-crate-metadata.json') as f:
             actual = json.load(f)
 
-        comp = Comparator([CrateParts.retrospective],
+    comp = Comparator([CrateParts.retrospective], [], expected)
+    comp.compare(actual)
+
+
+def test_create_retro_crate():
+    """TDD: create a retrospective crate from a step crate, by resolving references to prospective entities"""
+    with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
+        expected = json.load(f)
+
+    with tempfile.TemporaryDirectory() as d:
+        d = Path(d)
+        _create_step_crate(d)
+
+        # TODO - build trace map of prospective step -> input/output
+        #   compare to trace map of retrospective action -> input/output
+        #   link retro files/parameters back to prosp formalParameters
+        #   note that this won't work with an arbitrary number of files, we'll need prospective data at dist generation then
+
+        with open(d / 'ro-crate-metadata.json') as f:
+            actual = json.load(f)
+
+    comp = Comparator([CrateParts.retrospective],
                           [CrateParts.prospective, CrateParts.metadata, CrateParts.orchestration, CrateParts.other],
                           expected)
-        comp.compare(actual)
+    comp.compare(actual)
 
 
 def test_retrospective():
