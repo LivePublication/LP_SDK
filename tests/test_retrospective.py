@@ -274,6 +274,21 @@ def test_create_retro_crate():
                                      ['packed.cwl#main/rev', 'packed.cwl#main/sorted']]):
             crate.crate.get(_id)['instrument'] = {'@id': instrument}
 
+        # Add exampleOfWork links
+        for _id, examples in zip(*[['327fc7aedf4f6b69a42a7c8b808dc5a7aff61376', 'b9214658cc453331b62c2282b772a5c063dbd284',
+                          '97fe1b50b4582cebc7d853796ebd62e3e163aa3f'],
+                [
+                 ['packed.cwl#main/input', 'packed.cwl#revtool.cwl/input'],
+                 ["packed.cwl#main/output", "packed.cwl#sorttool.cwl/output"],
+                 ["packed.cwl#revtool.cwl/output", "packed.cwl#sorttool.cwl/input"]
+                ]
+          ]):
+                crate.crate.get(_id)['exampleOfWork'] = [{'@id': e} for e in examples]
+
+        for _id, example in zip(*[['#pv-main/reverse_sort', '#pv-main/sorted/reverse'],
+                                  ['packed.cwl#main/reverse_sort', 'packed.cwl#sorttool.cwl/reverse']]):
+            crate.crate.get(_id)['exampleOfWork'] = {'@id': example}
+
         crate.write()
 
         with open(d / 'ro-crate-metadata.json') as f:
