@@ -25,94 +25,6 @@ from runcrate import convert
 #
 #       for the purpose of creating a crate, rather than something that looks like the example, we might just want
 #       to use the entire parameter ID as is?
-def _strip_wep_param(param: str):
-    return param[2:]
-
-
-def _parse_wep(wep: dict, main_endpoint: str):
-    """Parses states in a WEP file to determine order, extract parameters, and link parameters"""
-    step = wep['StartAt']
-    props = wep['States'][step]
-    seen = {step}  # Check we don't get stuck in a loop
-
-    step_info = defaultdict(dict)
-    param_links = defaultdict(list)
-
-    pos = 0
-    while True:
-        is_transfer = props['ActionUrl'] == 'https://actions.automate.globus.org/transfer/transfer'
-        if is_transfer:
-            # Link the output of one step to the input of another
-            source_step = _strip_wep_param(props['Parameters']['source_endpoint_id.$'])
-            if source_step == main_endpoint:
-                source_step = 'main'
-
-            dest_step = _strip_wep_param(props['Parameters']['destination_endpoint_id.$'])
-            if dest_step == main_endpoint:
-                dest_step = 'main'
-
-            for transfers in props['Parameters']['transfer_items']:
-                source_path = _strip_wep_param(transfers['source_path.$'])
-                dest_path = _strip_wep_param(transfers['destination_path.$'])
-
-                # Parameter name
-                # TODO - this (using the actionUrl rather than step as id) is probably not actually what we want
-                if source_step == 'main':
-                    source_name = f'{source_step}/{source_path}'
-                else:
-                    tool_name = wep['States'][source_step]["ActionUrl"]
-                    source_name = f'{tool_name}/{source_path}'
-                if dest_step == 'main':
-                    dest_name = f'{dest_step}/{dest_path}'
-                else:
-                    tool_name = wep['States'][dest_step]["ActionUrl"]
-                    dest_name = f'{tool_name}/{dest_path}'
-
-                # Transfers to/from main are input-input, output-output
-                # Transfers between steps are output-input
-                if source_step == 'main':
-                    step_info['main'].setdefault('input', []).append(source_name)
-                else:
-                    # Inputs from previous steps should already be defined
-                    assert source_name in step_info[source_step]['output'], \
-                        f"Output parameter {source_name} not found for step {source_step}"
-
-                if dest_step == 'main':
-                    step_info['main'].setdefault('output', []).append(dest_name)
-                else:
-                    step_info[dest_step].setdefault('input', []).append(dest_name)
-
-                # Link parameters
-                param_links[dest_step].append((source_name, dest_name))
-
-        else:  # Not a transfer step
-            # Check that input parameters are already registered (by previous transfer step)
-            tool_name = props["ActionUrl"]
-            for input_param in props['Parameters'].values():
-                input_name = f'{tool_name}/{_strip_wep_param(input_param)}'
-                assert input_name in step_info[step]['input'], \
-                    f"Input parameter {input_param} not found for step {step}"
-
-            # Register output parameters
-            output_name = f'{tool_name}/{_strip_wep_param(props["ResultPath"])}'
-            step_info[step].setdefault('output', []).append(output_name)
-
-            # Set position
-            step_info[step]['pos'] = pos
-            pos += 1
-
-        # Set next step
-        if "Next" not in props or props.get("End", False):
-            break
-        step = props["Next"]
-        assert step not in seen, f"Loop detected in WEP file at: {step}"
-        seen.add(step)
-        assert step in wep['States'], f"Step {step} not found in WEP file"
-        props = wep['States'][step]
-
-    return step_info, param_links
-
-
 class LpProvCrate:
     def __init__(self, path: str):
         self.path = Path(path)
@@ -179,7 +91,7 @@ class LpProvCrate:
             wf.append_to('hasPart', tool_ent)
             step_ent['workExample'] = tool_ent
 
-    def build_from_wep(self, wep_file: Path):
+    def build_from_wep(self, wep_file: Path, parser: callable):
         """Build a crate from a WEP file"""
         # TODO: don't hard-code these, get from somewhere
         profiles = [
@@ -196,7 +108,7 @@ class LpProvCrate:
 
         # Parse WEP file
         # TODO: use links to create formal parameters
-        step_info, param_links = _parse_wep(wep, 'data_store_ep_id')
+        step_info, param_links = parser(wep)
 
         # TODO: we're assuming that all parameters are files
         param_props = {
@@ -228,6 +140,7 @@ class LpProvCrate:
             step_ent = self.add_step(f'{wf.id}#main/{step_id}', str(step_info['pos']))
             wf.append_to('step', step_ent)
 
+            # TODO: if adding parameter connections, add "https://w3id.org/ro/terms/workflow-run" to context
             if step_id in param_links:
                 step_ent['connection'] = [
                     {'@id': self.add_parameter_connection(source, target).id}

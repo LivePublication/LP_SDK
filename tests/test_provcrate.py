@@ -1,6 +1,8 @@
 import json
 import shutil
 import tempfile
+from collections import defaultdict
+from functools import partial
 from pathlib import Path
 
 from lp_sdk.provenance import LpProvCrate
@@ -195,6 +197,97 @@ def test_create_prov_crate_from_cwl():
     comp.compare(actual)
 
 
+def _strip_wep_param(param: str):
+    return param[2:]
+
+
+def _parse_wep(wep: dict, main_endpoint: str):
+    """
+    Parses states in a WEP file to determine order, extract parameters, and link parameters
+    Note that this function is somewhat hacky, for generating a CWL like crate from a WEP
+    """
+    step = wep['StartAt']
+    props = wep['States'][step]
+    seen = {step}  # Check we don't get stuck in a loop
+
+    step_info = defaultdict(dict)
+    param_links = defaultdict(list)
+
+    pos = 0
+    while True:
+        is_transfer = props['ActionUrl'] == 'https://actions.automate.globus.org/transfer/transfer'
+        if is_transfer:
+            # Link the output of one step to the input of another
+            source_step = _strip_wep_param(props['Parameters']['source_endpoint_id.$'])
+            if source_step == main_endpoint:
+                source_step = 'main'
+
+            dest_step = _strip_wep_param(props['Parameters']['destination_endpoint_id.$'])
+            if dest_step == main_endpoint:
+                dest_step = 'main'
+
+            for transfers in props['Parameters']['transfer_items']:
+                source_path = _strip_wep_param(transfers['source_path.$'])
+                dest_path = _strip_wep_param(transfers['destination_path.$'])
+
+                # Parameter name
+                # TODO - this (using the actionUrl rather than step as id) is probably not actually what we want
+                if source_step == 'main':
+                    source_name = f'{source_step}/{source_path}'
+                else:
+                    tool_name = wep['States'][source_step]["ActionUrl"]
+                    source_name = f'{tool_name}/{source_path}'
+                if dest_step == 'main':
+                    dest_name = f'{dest_step}/{dest_path}'
+                else:
+                    tool_name = wep['States'][dest_step]["ActionUrl"]
+                    dest_name = f'{tool_name}/{dest_path}'
+
+                # Transfers to/from main are input-input, output-output
+                # Transfers between steps are output-input
+                if source_step == 'main':
+                    step_info['main'].setdefault('input', []).append(source_name)
+                else:
+                    # Inputs from previous steps should already be defined
+                    assert source_name in step_info[source_step]['output'], \
+                        f"Output parameter {source_name} not found for step {source_step}"
+
+                if dest_step == 'main':
+                    step_info['main'].setdefault('output', []).append(dest_name)
+                else:
+                    step_info[dest_step].setdefault('input', []).append(dest_name)
+
+                # Link parameters
+                param_links[dest_step].append((source_name, dest_name))
+
+        else:  # Not a transfer step
+            # Check that input parameters are already registered (by previous transfer step)
+            tool_name = props["ActionUrl"]
+            for input_param in props['Parameters'].values():
+                input_name = f'{tool_name}/{_strip_wep_param(input_param)}'
+                assert input_name in step_info[step]['input'], \
+                    f"Input parameter {input_param} not found for step {step}"
+
+            # Register output parameters
+            output_name = f'{tool_name}/{_strip_wep_param(props["ResultPath"])}'
+            step_info[step].setdefault('output', []).append(output_name)
+
+            # Set position
+            step_info[step]['pos'] = pos
+            pos += 1
+
+        # Set next step
+        if "Next" not in props or props.get("End", False):
+            break
+        step = props["Next"]
+        assert step not in seen, f"Loop detected in WEP file at: {step}"
+        seen.add(step)
+        assert step in wep['States'], f"Step {step} not found in WEP file"
+        props = wep['States'][step]
+
+    return step_info, param_links
+
+
 def test_prov_crate_from_wep():
     """
     Testing/TDD of tooling to recreate the example provenance crate from https://www.researchobject.org/workflow-run-crate/profiles/provenance_run_crate
@@ -209,7 +302,7 @@ def test_prov_crate_from_wep():
 
         # Build crate from WEP file
         crate = LpProvCrate(d)
-        crate.build_from_wep(input_wep)
+        crate.build_from_wep(input_wep, partial(_parse_wep, main_endpoint='main'))
 
         # TODO: Hacks to handle things that don't make sense in globus
         ent = crate.crate.get("WEP.json#main/input")
