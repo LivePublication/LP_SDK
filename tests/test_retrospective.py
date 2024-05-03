@@ -1,5 +1,4 @@
 import json
-import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -9,7 +8,7 @@ from rocrate.model import ContextEntity
 from lp_sdk.parser.retrospective import format_retro_rocrate, write_retro_rocrate
 from lp_sdk.retrospective.crate import DistStepCrate
 from lp_sdk.validation.util import CrateParts
-from lp_sdk.validation.validator import Comparator
+from lp_sdk.validation.comparator import Comparator
 
 
 def test_create_retro_crate_manual():

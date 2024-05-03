@@ -5,7 +5,7 @@ from pathlib import Path
 
 from lp_sdk.provenance import LpProvCrate
 from lp_sdk.validation.util import CrateParts
-from lp_sdk.validation.validator import Comparator
+from lp_sdk.validation.comparator import Comparator
 
 
 def test_create_prov_crate():
