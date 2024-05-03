@@ -7,7 +7,7 @@ import pytest
 from lp_sdk.provenance import LpProvCrate
 from tests.util import compare_dicts
 from lp_sdk.validation.util import CrateParts
-from lp_sdk.validation.validator import Comparator
+from lp_sdk.validation.comparator import Comparator
 
 
 def _gen_commands():
