@@ -3,13 +3,15 @@ from lp_sdk.validation.util import CrateParts, detect_crate_type
 
 class Comparator:
     """Utility class for comparing two partial crates"""
-    def __init__(self, parts_to_check: list[CrateParts], include_refs_to: list[CrateParts], expected: dict):
+    def __init__(self, parts_to_check: list[CrateParts], include_refs_to: list[CrateParts], expected: dict,
+                 skip_keys: list[str] = None):
         self.expected = expected
         self.graph_dict = {item['@id']: item for item in expected['@graph']}
         # Items that will be compared if found in the expected graph
         self.parts_to_check = parts_to_check
         # Items which may not be in the actual graph, but will still be considered if they are referenced
         self.include_refs_to = include_refs_to
+        self.skip_keys = skip_keys or []
 
     def _consider_id(self, item: dict) -> bool:
         """Check if a given id is in the expected graph, and of a type we care about"""
@@ -81,6 +83,9 @@ class Comparator:
 
         actual_graph = {item['@id']: item for item in actual['@graph']}
         for key in self.graph_dict:
+            if key in self.skip_keys:
+                continue
+
             path = ['@graph', key]
             if not self._consider_id(self.graph_dict[key]):
                 continue
