@@ -11,6 +11,30 @@ from lp_sdk.validation.validator import Validator
 
 def parser(wep: dict, _input: dict) -> tuple[dict, dict]:
     """TDD: parse a WEP and input dict to generate the info needed for a prov crate"""
+    def _is_transfer(state_data: dict) -> bool:
+        return (state_data.get('Type', '') == 'Action' and
+                state_data.get('ActionUrl', '') == 'https://actions.globus.org/transfer/transfer')
+
+    def _is_step_crate_transfer(state_name: str, state_data: dict) -> bool:
+        return _is_transfer(state_data) and 'Transfer_provenance' in state_name
+
+    def _iter_states(states: dict, start_at: str):
+        state_name = start_at
+        while state_name in states:
+            yield state_name, states[state_name]
+            state_name = states[state_name].get('Next', '')
+
+    for state_name, state_data in _iter_states(wep):
+        if _is_step_crate_transfer(state_name, state_data):
+            # Step crate transfer - do nothing
+            pass
+        elif _is_transfer(state_data):
+            # File transfer - use to map parameter connections
+            pass
+        else:
+            # Compute state -
+            pass
+
     step_info = {}
     param_links = {}
     return step_info, param_links
