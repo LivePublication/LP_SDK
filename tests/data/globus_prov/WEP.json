@@ -54,6 +54,25 @@
             },
             "ResultPath": "$.Transfer_provenance_rev_txt",
             "WaitTime": 600,
+            "Next": "TransferRT_ST"
+        },
+        "TransferRT_ST": {
+            "Comment": "Transfer a file or directory in Globus",
+            "Type": "Action",
+            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "Parameters": {
+                "source_endpoint_id.$": "$.input.rt_st_transfer_source_endpoint_id",
+                "destination_endpoint_id.$": "$.input.rt_st_transfer_destination_endpoint_id",
+                "transfer_items": [
+                    {
+                        "source_path.$": "$.input.rt_st_transfer_source_path",
+                        "destination_path.$": "$.input.rt_st_transfer_destination_path",
+                        "recursive.$": "$.input.rt_st_transfer_recursive"
+                    }
+                ]
+            },
+            "ResultPath": "$.Transfer",
+            "WaitTime": 600,
             "Next": "SortTxt"
         },
         "SortTxt": {
