@@ -1,0 +1,118 @@
+{
+    "States": {
+        "TransferToCompute": {
+            "Comment": "Transfer a file or directory in Globus",
+            "Type": "Action",
+            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "Parameters": {
+                "source_endpoint_id.$": "$.input.to_compute_transfer_source_endpoint_id",
+                "destination_endpoint_id.$": "$.input.to_compute_transfer_destination_endpoint_id",
+                "transfer_items": [
+                    {
+                        "source_path.$": "$.input.to_compute_transfer_source_path",
+                        "destination_path.$": "$.input.to_compute_transfer_destination_path",
+                        "recursive.$": "$.input.to_compute_transfer_recursive"
+                    }
+                ]
+            },
+            "ResultPath": "$.Transfer",
+            "WaitTime": 600,
+            "Next": "RevTxt"
+        },
+        "RevTxt": {
+            "Comment": null,
+            "Type": "Action",
+            "ActionUrl": "https://compute.actions.globus.org",
+            "ExceptionOnActionFailure": false,
+            "Parameters": {
+                "tasks": [
+                    {
+                        "endpoint.$": "$.input.compute_endpoint",
+                        "function.$": "$.input.rev_txt_function_id",
+                        "payload.$": "$.input.RevTxt"
+                    }
+                ]
+            },
+            "ResultPath": "$.RevTxt",
+            "WaitTime": 300,
+            "Next": "Transfer_provenance_rev_txt"
+        },
+        "Transfer_provenance_rev_txt": {
+            "Comment": "Transfer a file or directory in Globus",
+            "Type": "Action",
+            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "Parameters": {
+                "source_endpoint_id.$": "$.input.prov_compute_GCS_id",
+                "destination_endpoint_id.$": "$.input.orchestration_server_endpoint_id",
+                "transfer_items": [
+                    {
+                        "recursive": true,
+                        "source_path.=": "`$.RevTxt.details.results[0].task_id` + '.crate'",
+                        "destination_path.=": "`$.input._provenance_crate_destination_directory` + '/' + `$.RevTxt.details.results[0].task_id`"
+                    }
+                ]
+            },
+            "ResultPath": "$.Transfer_provenance_rev_txt",
+            "WaitTime": 600,
+            "Next": "SortTxt"
+        },
+        "SortTxt": {
+            "Comment": null,
+            "Type": "Action",
+            "ActionUrl": "https://compute.actions.globus.org",
+            "ExceptionOnActionFailure": false,
+            "Parameters": {
+                "tasks": [
+                    {
+                        "endpoint.$": "$.input.compute_endpoint",
+                        "function.$": "$.input.sort_txt_function_id",
+                        "payload.$": "$.input.SortTxt"
+                    }
+                ]
+            },
+            "ResultPath": "$.SortTxt",
+            "WaitTime": 300,
+            "Next": "Transfer_provenance_sort_txt"
+        },
+        "Transfer_provenance_sort_txt": {
+            "Comment": "Transfer a file or directory in Globus",
+            "Type": "Action",
+            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "Parameters": {
+                "source_endpoint_id.$": "$.input.prov_compute_GCS_id",
+                "destination_endpoint_id.$": "$.input.orchestration_server_endpoint_id",
+                "transfer_items": [
+                    {
+                        "recursive": true,
+                        "source_path.=": "`$.SortTxt.details.results[0].task_id` + '.crate'",
+                        "destination_path.=": "`$.input._provenance_crate_destination_directory` + '/' + `$.SortTxt.details.results[0].task_id`"
+                    }
+                ]
+            },
+            "ResultPath": "$.Transfer_provenance_sort_txt",
+            "WaitTime": 600,
+            "Next": "TransferFromCompute"
+        },
+        "TransferFromCompute": {
+            "Comment": "Transfer a file or directory in Globus",
+            "Type": "Action",
+            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "Parameters": {
+                "source_endpoint_id.$": "$.input.from_compute_transfer_source_endpoint_id",
+                "destination_endpoint_id.$": "$.input.from_compute_transfer_destination_endpoint_id",
+                "transfer_items": [
+                    {
+                        "source_path.$": "$.input.from_compute_transfer_source_path",
+                        "destination_path.$": "$.input.from_compute_transfer_destination_path",
+                        "recursive.$": "$.input.from_compute_transfer_recursive"
+                    }
+                ]
+            },
+            "ResultPath": "$.Transfer",
+            "WaitTime": 600,
+            "End": true
+        }
+    },
+    "Comment": "Workflow matching the provenance rocrate example",
+    "StartAt": "TransferToCompute"
+}

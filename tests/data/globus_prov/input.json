@@ -1,0 +1,33 @@
+{
+    "input": {
+        "rev_txt_function_id": "60232236-4b25-4a92-84a2-0b8e30feaaa7",
+        "sort_txt_function_id": "543e2e7d-3f5f-4df8-90a6-daf2ab905864",
+        "to_compute_transfer_sync_level": "checksum",
+        "_provenance_rev_txt_transfer_sync_level": "checksum",
+        "_provenance_sort_txt_transfer_sync_level": "checksum",
+        "from_compute_transfer_sync_level": "checksum",
+        "compute_endpoint": "58fb6f2d-ff78-4f39-9669-38c12d01f566",
+        "prov_compute_GCS_id": "8ee44381-114a-45de-b8f8-d105a90c200d",
+        "orchestration_server_endpoint_id": "4a420ad5-4113-4d7d-aba2-883f8208e897",
+        "_provenance_crate_destination_directory": "13fe2659-32f1-414b-b3a8-2c6b096967da",
+        "to_compute_transfer_source_endpoint_id": "b782400e-3e59-412c-8f73-56cd0782301f",
+        "to_compute_transfer_destination_endpoint_id": "8ee44381-114a-45de-b8f8-d105a90c200d",
+        "to_compute_transfer_source_path": "/input/test.txt",
+        "to_compute_transfer_destination_path": "/input/test.txt",
+        "to_compute_transfer_recursive": false,
+        "from_compute_transfer_source_endpoint_id": "8ee44381-114a-45de-b8f8-d105a90c200d",
+        "from_compute_transfer_destination_endpoint_id": "b782400e-3e59-412c-8f73-56cd0782301f",
+        "from_compute_transfer_source_path": "/output/test.txt",
+        "from_compute_transfer_destination_path": "/output/test.txt",
+        "from_compute_transfer_recursive": false,
+        "RevTxt": {
+            "input_file": "/input/test.txt",
+            "output_file": "/output/test.txt"
+        },
+        "SortTxt": {
+            "input_file": "/input/test.txt",
+            "output_file": "/output/test.txt",
+            "reverse": true
+        }
+    }
+}
