@@ -3,3 +3,4 @@ PyLD
 Click
 tox
 runcrate
+pydantic

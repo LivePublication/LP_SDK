@@ -1,6 +1,7 @@
 import json
 import shutil
 import tempfile
+from collections import defaultdict
 from functools import partial
 from pathlib import Path
 
@@ -8,8 +9,43 @@ from lp_sdk.provenance import LpProvCrate
 from lp_sdk.validation.schemas import provenance_crate_draft_schema
 from lp_sdk.validation.validator import Validator
 
+from pydantic import BaseModel
 
-def parser(wep: dict, _input: dict) -> tuple[dict, dict]:
+def _chain_get(data: dict, key: str):
+    keys = key.split('.')
+    for k in keys:
+        data = data[k]
+    return data
+
+
+class TransferState:
+    def __init__(self, data: dict):
+        self.source_endpoint = data['Parameters']['source_endpoint_id.$']
+        self.destination_endpoint = data['Parameters']['destination_endpoint_id.$']
+
+        # TODO: assumes only one item is being transferred
+        self.source_path = data['Parameters']['transfer_items'][0]['source_path.$']
+        self.destination_path = data['Parameters']['transfer_items'][0]['destination_path.$']
+        self.recursive = data['Parameters']['transfer_items'][0]['recursive.$']
+
+
+class GlobusParameterConnection(BaseModel):
+    source_ep: str
+    source_path: str
+    dest_ep: str
+    dest_path: str
+
+    @staticmethod
+    def parse(transfer_state: TransferState, _input: dict):
+        # TODO: do we need to handle recursive?
+        return GlobusParameterConnection(
+            source_ep=_chain_get(_input, transfer_state.source_endpoint),
+            source_path=_chain_get(_input, transfer_state.source_path),
+            dest_ep=_chain_get(_input, transfer_state.destination_endpoint),
+            dest_path=_chain_get(_input, transfer_state.destination_path),
+        )
+
+def parser(wep: dict, _input: dict, orch_epid: str) -> tuple[dict, dict]:
     """TDD: parse a WEP and input dict to generate the info needed for a prov crate"""
     def _is_transfer(state_data: dict) -> bool:
         return (state_data.get('Type', '') == 'Action' and
@@ -24,13 +60,31 @@ def parser(wep: dict, _input: dict) -> tuple[dict, dict]:
             yield state_name, states[state_name]
             state_name = states[state_name].get('Next', '')
 
+
+    # First step through the WEP and simplify
+    step_info = defaultdict(dict)
+    param_links = []
+
     for state_name, state_data in _iter_states(wep):
         if _is_step_crate_transfer(state_name, state_data):
             # Step crate transfer - do nothing
             pass
         elif _is_transfer(state_data):
             # File transfer - use to map parameter connections
-            pass
+            t = TransferState(state_data)
+
+            # Identify input/output files from workflow
+            if _chain_get(_input, t.source_endpoint) == orch_epid:
+                # Transfer from orchestration endpoint
+                step_info['main'].setdefault('input', []).append(_chain_get(_input, t.source_path))
+                param_links.append(GlobusParameterConnection.parse(t, _input))
+            elif _chain_get(_input, t.destination_endpoint) == orch_epid:
+                # Transfer to orchestration endpoint
+                step_info['main'].setdefault('output', []).append(_chain_get(_input, t.destination_path))
+                param_links.append(GlobusParameterConnection.parse(t, _input))
+            else:
+                # Transfer between compute endpoints
+                param_links.append(GlobusParameterConnection.parse(t, _input))
         else:
             # Compute state -
             pass
