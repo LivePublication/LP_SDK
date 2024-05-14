@@ -4,6 +4,9 @@ import tempfile
 from collections import defaultdict
 from functools import partial
 from pathlib import Path
+from typing import Any
+
+from pydantic import BaseModel
 
 from lp_sdk.provenance import LpProvCrate
 from lp_sdk.validation.schemas import provenance_crate_draft_schema
@@ -12,10 +15,74 @@ from lp_sdk.validation.validator import Validator
 from lp_sdk.parser import wep_parsing
 
 
+class FormalParameter(BaseModel):
+    name: str
+    value: Any
+    addtionalType: str | None
+    input_to: str | None
+    output_from: str | None
+
+
 def parser(wep: dict, input_: dict, orch_epid: str) -> tuple[dict, dict]:
     """TDD: parse a WEP and input dict to generate the info needed for a prov crate"""
     # Parse WEP into state objects
     compute_states, transfer_states = wep_parsing.parse_states(wep, input_)
+
+    # # Formal parameters
+    formal_params = {}
+
+    # Identify all function parameters (which may be inputs or outputs)
+    for state in compute_states:
+        for task in state.tasks:
+            assert isinstance(task.payload.value, dict), "Expecting payload to be dict of kwargs to func"
+            for key, value in task.payload.value.items():
+                formal_params[f'{task.payload.key}.{key}'] = {
+                    'step': state.name,
+                    'name': f'{task.payload.key}.{key}',
+                    'value': value,
+                }
+
+    # Check that all strings (i.e.: potential paths) are unique
+    # TODO: relax this constraint
+    # string_parameters = [p['value'] for p in formal_params.values() if isinstance(p['value'], str)]
+    # assert len(string_parameters) == len(set(string_parameters)), "All paths must be unique"
+
+    # Use transfer states to identify which parameters are inputs/outputs (and that they are files)
+    for transfer in transfer_states:
+        for transfer_item in transfer.transfer_items:
+            # If file sent to/from compute endpoint, mark it as a file, and as an input/output
+            if transfer.source_endpoint.value != orch_epid:
+                path = transfer_item.source_path.value
+                # Find matching formal parameters
+                keys = [k for k, v in formal_params.items() if v['value'] == path]
+                # TODO: handle non-unique paths?
+                assert len(keys) == 1, f"Expected 1 match for path {path}, found {len(keys)}"
+                key = keys[0]
+
+                # Update formal parameters
+                formal_params[key]['additionalType'] = 'File'
+                formal_params[key]['output'] = True
+
+            if transfer.destination_endpoint.value != orch_epid:
+                path = transfer_item.destination_path.value
+                # Find matching formal parameters
+                keys = [k for k, v in formal_params.items() if v['value'] == path]
+
+                # TODO: handle non-unique paths?
+                assert len(keys) == 1, f"Expected 1 match for path {path}, found {len(keys)}"
+                key = keys[0]
+
+                # Update formal parameters
+                formal_params[key]['additionalType'] = 'File'
+                formal_params[key]['input'] = True
+
+        # Identify types of all non-file parameters
+        for key, param in formal_params.items():
+            if 'additionalType' not in param:
+                param['additionalType'] = type(param['value'])
+                # If not a file, it must be a direct input to the func
+                # TODO: consider passing of data from one func to another via ResultPath
+                param['input'] = True
 
     # First step through the WEP and simplify
     step_info = defaultdict(dict)
