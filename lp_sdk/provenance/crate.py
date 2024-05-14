@@ -161,8 +161,7 @@ class LpProvCrate:
 
             # Add tool
             step_props = wep['States'][step_id]
-            name = step_props["ActionUrl"]
-            tool_ent = self.add_tool(f'{wf.id}#{name}', name, step_props['Comment'])
+            tool_ent = self.add_tool(f'{wf.id}#{step_id}', step_id, step_props['Comment'])
 
             for input in step_info['input']:
                 input_ent = self.add_parameter(f'{wf.id}#{input}', input, param_props)

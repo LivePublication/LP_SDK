@@ -183,6 +183,7 @@ def test_globus_prospective():
 
         crate.write()
 
+        # TODO: temporary copy for debugging/TDD
         shutil.copy(Path(d) / 'ro-crate-metadata.json',
                     Path(__file__).parent / 'data' / 'globus_prov' / 'ro-crate-metadata.json')
 
