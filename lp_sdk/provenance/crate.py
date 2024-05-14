@@ -1,9 +1,8 @@
 import json
 import uuid
-from collections import defaultdict
 from pathlib import Path
 
-from rocrate.model import ContextEntity, ComputationalWorkflow
+from rocrate.model import ContextEntity, ComputationalWorkflow, ComputerLanguage
 from rocrate.rocrate import ROCrate
 from runcrate import convert
 
@@ -117,7 +116,20 @@ class LpProvCrate:
         }
 
         # Add workflow
-        wf = self.add_workflow(wep_file)
+        # TODO: use appropriate urls, dynamic version?
+        globus_lang = ComputerLanguage(
+            self.crate,
+            identifier='https://w3id.org/workflowhub/workflow-ro-crate#globus',  # TODO: not a real url
+            properties={
+                'name': 'Globus Compute Flow',
+                'alternateName': 'GlobusFlow',
+                'identifier': {'@id': 'https://compute.api.globus.org' },
+                'url': {'@id': 'https://www.globus.org/compute' },
+                'version': '1.14.0'
+            }
+        )
+
+        wf = self.add_workflow(wep_file, lang=globus_lang)
 
         for input in step_info['main'].get('input', []):
             input_ent = self.add_parameter(f'{wf.id}#{input}', input, param_props)
@@ -163,13 +175,13 @@ class LpProvCrate:
             wf.append_to('hasPart', tool_ent)
             step_ent['workExample'] = tool_ent
 
-    def add_workflow(self, file: Path) -> ComputationalWorkflow:
+    def add_workflow(self, file: Path, lang: ComputerLanguage = None) -> ComputationalWorkflow:
         properties = {
             '@type': ['File', 'SoftwareSourceCode', 'ComputationalWorkflow', 'HowTo'],
             'name': file.name,
         }
 
-        return self.crate.add_workflow(file, file.name, main=True, lang='cwl',
+        return self.crate.add_workflow(file, file.name, main=True, lang=lang or 'cwl',
                                        lang_version='v1.0',
                                        properties=properties)
 
