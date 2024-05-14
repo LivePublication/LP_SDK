@@ -84,6 +84,49 @@ def parser(wep: dict, input_: dict, orch_epid: str) -> tuple[dict, dict]:
                 # TODO: consider passing of data from one func to another via ResultPath
                 param['input'] = True
 
+    # # Parameter connections
+    orch_params = {}  # Additional parameters at the 'main' level
+    param_links = []
+    def _param_from_value(value: str):
+        for k, v in formal_params.items():
+            if v['additionalType'] == 'File' and v['value'] == value:
+                return k
+
+    # Use transfers to create parameter connections for files
+    for transfer in transfer_states:
+        for transfer_item in transfer.transfer_items:
+            if transfer.source_endpoint.value == orch_epid:
+                # Transfer from orchestration endpoint
+                dest_key = _param_from_value(transfer_item.destination_path.value)
+                source_key = f'main#{dest_key}'
+                orch_params[source_key] = {
+                    'name': source_key,
+                    'value': transfer_item.source_path.value,
+                    'additionalType': 'File',
+                    'input': True,
+                }
+            elif transfer.destination_endpoint.value == orch_epid:
+                # Transfer to orchestration endpoint
+                source_key = _param_from_value(transfer_item.source_path.value)
+                dest_key = f'main#{source_key}'
+                orch_params[dest_key] = {
+                    'name': dest_key,
+                    'value': transfer_item.destination_path.value,
+                    'additionalType': 'File',
+                    'output': True,
+                }
+            else:
+                source_key = _param_from_value(transfer_item.source_path.value)
+                dest_key = _param_from_value(transfer_item.destination_path.value)
+
+            param_links.append((source_key, dest_key))
+
+    # Non-file parameters are also inputs to main
+    for key, param in formal_params.items():
+        if param['additionalType'] != 'File':
+            orch_params[f'main#{key}'] = param
+            param_links.append((key, f'main#{key}'))
+
     # First step through the WEP and simplify
     step_info = defaultdict(dict)
     param_links = []
