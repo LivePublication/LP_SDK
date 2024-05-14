@@ -127,26 +127,33 @@ def parser(wep: dict, input_: dict, orch_epid: str) -> tuple[dict, dict]:
             orch_params[f'main#{key}'] = param
             param_links.append((key, f'main#{key}'))
 
-    # First step through the WEP and simplify
-    step_info = defaultdict(dict)
-    param_links = []
+    # TODO: get position by iterating over states
 
-    for transfer in transfer_states:
-        if transfer.source_endpoint.value == orch_epid:
-            # Transfer from orchestration endpoint
-            step_info['main'].setdefault('input', []).extend(
-                [t.source_path.value for t in transfer.transfer_items])
-        elif transfer.destination_endpoint.value == orch_epid:
-            # Transfer to orchestration endpoint
-            step_info['main'].setdefault('output', []).extend(
-                [t.destination_path.value for t in transfer.transfer_items])
+    # Assemble step info
+    step_info = {
+        'main': {
+            'input': [k for k, v in orch_params.items() if v.get('input')],
+            'output': [k for k, v in orch_params.items() if v.get('output')],
+        }
+    }
+
+    for step in compute_states:
+        step_info[step.name] = {
+            'pos': 0,  # TODO: get position by iterating over states
+            'input': [k for k, v in formal_params.items() if v['step'] == step.name and v.get('input')],
+            'output': [k for k, v in formal_params.items() if v['step'] == step.name and v.get('output')],
+        }
+
+    # Assemble param links
+    param_links_by_step = defaultdict(list)
+    for source, target in param_links:
+        if target in orch_params:
+            param_links_by_step['main'].append((source, target))
         else:
-            # Transfer between compute endpoints
-            pass
+            step = formal_params[target]['step']
+            param_links_by_step[step].append((source, target))
 
-    step_info = {}
-    param_links = {}
-    return step_info, param_links
+    return step_info, param_links_by_step
 
 
 def test_globus_prospective():
