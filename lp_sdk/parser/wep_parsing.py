@@ -62,14 +62,16 @@ class ComputeState(BaseModel):
     comment: str | None
     tasks: list[Task]
     resultPath: str
+    position: int | None
 
     @staticmethod
-    def parse(name: str, compute_state: dict, input_: dict):
+    def parse(name: str, compute_state: dict, input_: dict, position: int = None):
         return ComputeState(
             name=name,
             comment=compute_state['Comment'],
             tasks=[Task.parse(task, input_) for task in compute_state['Parameters']['tasks']],
             resultPath=compute_state['ResultPath'],
+            position=position,
         )
 
 
@@ -91,15 +93,21 @@ def parse_states(wep: dict, input_: dict) -> tuple[list[ComputeState], list[Tran
     """Parse a WEP into a list of TransferState and ComputeState objects"""
     compute_states = []
     transfer_states = []
-    for state_name, state in wep['States'].items():
+    pos = 0
+    state_name = wep['StartAt']
+    while 'Next' in wep['States'][state_name]:
+        state = wep['States'][state_name]
         if state['ActionUrl'] == 'https://actions.automate.globus.org/transfer/transfer':
             if 'provenance' in state_name:
                 # TODO: better way of detecting these
-                continue
+                pass
             else:
                 transfer_states.append(TransferState.parse(state, input_))
         elif state['ActionUrl'] == 'https://compute.actions.globus.org':
-            compute_states.append(ComputeState.parse(state_name, state, input_))
+            compute_states.append(ComputeState.parse(state_name, state, input_, pos))
+            pos += 1
         else:
             raise NotImplementedError(f'Unknown state type: {state["ActionUrl"]}')
+        state_name = state['Next']
+
     return compute_states, transfer_states

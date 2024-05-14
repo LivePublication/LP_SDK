@@ -127,8 +127,6 @@ def parser(wep: dict, input_: dict, orch_epid: str) -> tuple[dict, dict]:
             orch_params[f'main#{key}'] = param
             param_links.append((f'main#{key}', key))
 
-    # TODO: get position by iterating over states
-
     # Assemble step info
     step_info = {
         'main': {
@@ -139,7 +137,7 @@ def parser(wep: dict, input_: dict, orch_epid: str) -> tuple[dict, dict]:
 
     for step in compute_states:
         step_info[step.name] = {
-            'pos': 0,  # TODO: get position by iterating over states
+            'pos': str(step.position),
             'input': [k for k, v in formal_params.items() if v['step'] == step.name and v.get('input')],
             'output': [k for k, v in formal_params.items() if v['step'] == step.name and v.get('output')],
         }

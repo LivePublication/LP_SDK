@@ -147,4 +147,6 @@ def test_parse_full_wep(input_data, wep_data):
     assert len(compute_states) == 2
     assert len(transfer_states) == 3
     assert compute_states[0].name == 'RevTxt'
+    assert compute_states[0].position == 0
     assert compute_states[1].name == 'SortTxt'
+    assert compute_states[1].position == 1
