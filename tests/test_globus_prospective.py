@@ -125,7 +125,7 @@ def parser(wep: dict, input_: dict, orch_epid: str) -> tuple[dict, dict]:
     for key, param in formal_params.items():
         if param['additionalType'] != 'File':
             orch_params[f'main#{key}'] = param
-            param_links.append((key, f'main#{key}'))
+            param_links.append((f'main#{key}', key))
 
     # TODO: get position by iterating over states
 
@@ -182,6 +182,9 @@ def test_globus_prospective():
         crate.build_from_wep(input_wep, partial(parser, input_=input_data, orch_epid='b782400e-3e59-412c-8f73-56cd0782301f'))
 
         crate.write()
+
+        shutil.copy(Path(d) / 'ro-crate-metadata.json',
+                    Path(__file__).parent / 'data' / 'globus_prov' / 'ro-crate-metadata.json')
 
         with open(Path(d) / 'ro-crate-metadata.json') as f:
             actual = json.load(f)
