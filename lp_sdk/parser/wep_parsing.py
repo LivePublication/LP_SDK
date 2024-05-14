@@ -2,8 +2,6 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from tests.test_globus_prospective import TransferState
-
 
 def _chain_get(data: dict, key: str):
     """Get a value from a nested dictionary using a dot-separated key"""
