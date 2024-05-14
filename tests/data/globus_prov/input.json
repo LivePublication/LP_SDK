@@ -28,7 +28,7 @@
         "rt_st_transfer_recursive": false,
         "from_compute_transfer_source_endpoint_id": "8ee44381-114a-45de-b8f8-d105a90c200d",
         "from_compute_transfer_destination_endpoint_id": "b782400e-3e59-412c-8f73-56cd0782301f",
-        "from_compute_transfer_source_path": "/sort_text/input/test.txt",
+        "from_compute_transfer_source_path": "/sort_text/output/test.txt",
         "from_compute_transfer_destination_path": "/output/test.txt",
         "from_compute_transfer_recursive": false,
         "RevTxt": {
