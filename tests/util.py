@@ -65,7 +65,6 @@ def compare_dicts(expected, actual, name='root', error=True, indent=0, graph=Non
                 for item in expected[key]:
                     if _exclude_item(item, graph):
                         # Don't check for items in lists that would not have been added at prospective time
-                        # TODO - build a proper validator
                         continue
                     else:
                         d1_items[item['@id']] = item

@@ -143,8 +143,6 @@ def test_create_prov_crate():
 
         crate.add_software('#a73fd902-8d14-48c9-835b-a5ba2f9149fd', 'cwltool 1.0.20181012180214')
 
-        # TODO: better validation tools - exclude retrospective entities from validation in lists
-
         crate.write()
 
         with open(Path(d) / 'ro-crate-metadata.json') as f:
@@ -174,7 +172,6 @@ def test_create_prov_crate_from_cwl():
 
         # Build crate from CWL file
         crate = LpProvCrate(d)
-        # TODO - link tool in/outputs to main in/outputs
         crate.build_from_cwl(input_cwl)
 
         # TODO: this is considered prospective - but runcrate gets this by running the workflow
@@ -187,7 +184,6 @@ def test_create_prov_crate_from_cwl():
             actual = json.load(f)
 
     # Expected data
-    # TODO: the unit tests in runcrate expect more than this, but also read more than just the .cwl file
     with open(Path(__file__).parent / 'data' / 'cwl_prov' / 'ro-crate-metadata.json') as f:
         expected = json.load(f)
 
