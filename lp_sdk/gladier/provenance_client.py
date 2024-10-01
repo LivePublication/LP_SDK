@@ -15,6 +15,7 @@ import gladier.utils.dynamic_imports
 import gladier.utils.name_generation
 import gladier.utils.tool_alias
 import gladier.version
+from gladier import GladierBaseTool
 from gladier.client import GladierBaseClient
 from gladier.managers import ComputeManager, FlowsManager
 from gladier.managers.login_manager import (
@@ -120,3 +121,20 @@ class ProvenanceBaseClient(GladierBaseClient):
             raise gladier.exc.ConfigException(
                 '"flow_definition" was not set on ' f"{self.__class__.__name__}"
             )
+
+    def check_input(self, tool: GladierBaseTool, flow_input: dict):
+        # Override normal behaviour, in order to check input is provided in expected location:
+        # $.input.compute_fnc_name, rather than $.input
+        def _chain_has_key(data: dict, key: str) -> bool:
+            keys = key.split(".")
+            for k in keys:
+                if k not in data:
+                    return False
+                data = data[k]
+            return True
+
+        for req_input in tool.get_required_input():
+            if not _chain_has_key(flow_input["input"], req_input):
+                raise gladier.exc.ConfigException(
+                    f'{tool} requires flow input value: "{req_input}"'
+                )
