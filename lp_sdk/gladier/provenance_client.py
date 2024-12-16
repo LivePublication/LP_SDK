@@ -22,7 +22,6 @@ from gladier.managers.login_manager import (
     BaseLoginManager,
 )
 from lp_sdk.gladier.provenance_transfers import DistCrateTransfer
-from gladier.utils.tool_alias import StateSuffixVariablePrefix
 
 log = logging.getLogger(__name__)
 

@@ -3,7 +3,7 @@ from typing import Mapping, Any
 from gladier_tools.globus import Transfer
 
 from gladier.utils.name_generation import get_upper_camel_case
-from gladier.utils.tool_alias import ToolAlias, StateSuffixVariablePrefix
+from gladier.utils.tool_alias import StateSuffixVariablePrefix
 
 
 class DistCrateTransfer(Transfer):

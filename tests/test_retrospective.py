@@ -219,7 +219,7 @@ def _create_step_crate(tempDir: Path):
     wf_create_ent = _add_create(workflow_data)
 
     agent = crate.add_agent('https://orcid.org/0000-0001-9842-9718', 'Stian Soiland-Reyes')
-    org_ent = crate.add_organize_action('#d6ab3175-88f5-4b6a-b028-1b13e6d1a158', 'Run of cwltool 1.0.20181012180214',
+    _ = crate.add_organize_action('#d6ab3175-88f5-4b6a-b028-1b13e6d1a158', 'Run of cwltool 1.0.20181012180214',
                                         {'startTime': '2018-10-25T15:46:35.210973'},
                                         agent, control_ents, wf_create_ent)
 
