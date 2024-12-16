@@ -83,8 +83,8 @@ class TransferState(BaseModel):
     @staticmethod
     def parse(transfer_state: dict, input_: dict):
         return TransferState(
-            source_endpoint=_match_form(transfer_state['Parameters'], input_, 'source_endpoint_id'),
-            destination_endpoint=_match_form(transfer_state['Parameters'], input_, 'destination_endpoint_id'),
+            source_endpoint=_match_form(transfer_state['Parameters'], input_, 'source_endpoint'),
+            destination_endpoint=_match_form(transfer_state['Parameters'], input_, 'destination_endpoint'),
             transfer_items=[TransferItem.parse(item, input_) for item in transfer_state['Parameters']['transfer_items']],
         )
 
@@ -95,9 +95,9 @@ def parse_states(wep: dict, input_: dict) -> tuple[list[ComputeState], list[Tran
     transfer_states = []
     pos = 0
     state_name = wep['StartAt']
-    while 'Next' in wep['States'][state_name]:
+    while True:
         state = wep['States'][state_name]
-        if state['ActionUrl'] == 'https://actions.automate.globus.org/transfer/transfer':
+        if state['ActionUrl'] == 'https://transfer.actions.globus.org/transfer/':
             if 'provenance' in state_name:
                 # TODO: better way of detecting these
                 pass
@@ -108,6 +108,8 @@ def parse_states(wep: dict, input_: dict) -> tuple[list[ComputeState], list[Tran
             pos += 1
         else:
             raise NotImplementedError(f'Unknown state type: {state["ActionUrl"]}')
-        state_name = state['Next']
+        state_name = state.get('Next', None)
+        if state_name is None:
+            break
 
     return compute_states, transfer_states

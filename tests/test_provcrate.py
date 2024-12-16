@@ -211,14 +211,14 @@ def _parse_wep(wep: dict, main_endpoint: str):
 
     pos = 0
     while True:
-        is_transfer = props['ActionUrl'] == 'https://actions.automate.globus.org/transfer/transfer'
+        is_transfer = props['ActionUrl'] == 'https://transfer.actions.globus.org/transfer/'
         if is_transfer:
             # Link the output of one step to the input of another
-            source_step = _strip_wep_param(props['Parameters']['source_endpoint_id.$'])
+            source_step = _strip_wep_param(props['Parameters']['source_endpoint.$'])
             if source_step == main_endpoint:
                 source_step = 'main'
 
-            dest_step = _strip_wep_param(props['Parameters']['destination_endpoint_id.$'])
+            dest_step = _strip_wep_param(props['Parameters']['destination_endpoint.$'])
             if dest_step == main_endpoint:
                 dest_step = 'main'
 

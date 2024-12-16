@@ -3,10 +3,10 @@
         "TransferToCompute": {
             "Comment": "Transfer a file or directory in Globus",
             "Type": "Action",
-            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "ActionUrl": "https://transfer.actions.globus.org/transfer/",
             "Parameters": {
-                "source_endpoint_id.$": "$.input.to_compute_transfer_source_endpoint_id",
-                "destination_endpoint_id.$": "$.input.to_compute_transfer_destination_endpoint_id",
+                "source_endpoint.$": "$.input.to_compute_transfer_source_endpoint_id",
+                "destination_endpoint.$": "$.input.to_compute_transfer_destination_endpoint_id",
                 "transfer_items": [
                     {
                         "source_path.$": "$.input.to_compute_transfer_source_path",
@@ -40,10 +40,10 @@
         "Transfer_provenance_rev_txt": {
             "Comment": "Transfer a file or directory in Globus",
             "Type": "Action",
-            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "ActionUrl": "https://transfer.actions.globus.org/transfer/",
             "Parameters": {
-                "source_endpoint_id.$": "$.input.prov_compute_GCS_id",
-                "destination_endpoint_id.$": "$.input.orchestration_server_endpoint_id",
+                "source_endpoint.$": "$.input.prov_compute_GCS_id",
+                "destination_endpoint.$": "$.input.orchestration_server_endpoint_id",
                 "transfer_items": [
                     {
                         "recursive": true,
@@ -59,10 +59,10 @@
         "TransferRT_ST": {
             "Comment": "Transfer a file or directory in Globus",
             "Type": "Action",
-            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "ActionUrl": "https://transfer.actions.globus.org/transfer/",
             "Parameters": {
-                "source_endpoint_id.$": "$.input.rt_st_transfer_source_endpoint_id",
-                "destination_endpoint_id.$": "$.input.rt_st_transfer_destination_endpoint_id",
+                "source_endpoint.$": "$.input.rt_st_transfer_source_endpoint_id",
+                "destination_endpoint.$": "$.input.rt_st_transfer_destination_endpoint_id",
                 "transfer_items": [
                     {
                         "source_path.$": "$.input.rt_st_transfer_source_path",
@@ -96,10 +96,10 @@
         "Transfer_provenance_sort_txt": {
             "Comment": "Transfer a file or directory in Globus",
             "Type": "Action",
-            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "ActionUrl": "https://transfer.actions.globus.org/transfer/",
             "Parameters": {
-                "source_endpoint_id.$": "$.input.prov_compute_GCS_id",
-                "destination_endpoint_id.$": "$.input.orchestration_server_endpoint_id",
+                "source_endpoint.$": "$.input.prov_compute_GCS_id",
+                "destination_endpoint.$": "$.input.orchestration_server_endpoint_id",
                 "transfer_items": [
                     {
                         "recursive": true,
@@ -115,10 +115,10 @@
         "TransferFromCompute": {
             "Comment": "Transfer a file or directory in Globus",
             "Type": "Action",
-            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "ActionUrl": "https://transfer.actions.globus.org/transfer/",
             "Parameters": {
-                "source_endpoint_id.$": "$.input.from_compute_transfer_source_endpoint_id",
-                "destination_endpoint_id.$": "$.input.from_compute_transfer_destination_endpoint_id",
+                "source_endpoint.$": "$.input.from_compute_transfer_source_endpoint_id",
+                "destination_endpoint.$": "$.input.from_compute_transfer_destination_endpoint_id",
                 "transfer_items": [
                     {
                         "source_path.$": "$.input.from_compute_transfer_source_path",

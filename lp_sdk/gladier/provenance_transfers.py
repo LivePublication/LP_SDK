@@ -34,7 +34,7 @@ class DistCrateTransfer(Transfer):
         for state_name, state_data in flow_definition['States'].items():
             state_data['ResultPath'] = f'$.{state_name}'
             transfer_parameters = state_data['Parameters']
-            transfer_items = transfer_parameters['transfer_items']
+            transfer_items = transfer_parameters['DATA']
 
             # Source and destination endpoints may be set dynamcially
 
@@ -49,7 +49,7 @@ class DistCrateTransfer(Transfer):
             transfer_items[0].pop('destination_path.$', None)
             transfer_items[0]['destination_path.='] = f"`$.input._provenance_crate_destination_directory` + '/' + `$.{self.func_name}.details.results[0].task_id`"
 
-            transfer_parameters['source_endpoint_id.$'] = '$.input.prov_compute_GCS_id'
-            transfer_parameters['destination_endpoint_id.$'] = '$.input.orchestration_server_endpoint_id'
+            transfer_parameters['source_endpoint.$'] = '$.input.prov_compute_GCS_id'
+            transfer_parameters['destination_endpoint.$'] = '$.input.orchestration_server_endpoint_id'
 
         return flow_definition

@@ -3,10 +3,10 @@
         "main_rev_transfer": {
             "Comment": "Transfer input to rev step",
             "Type": "Action",
-            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "ActionUrl": "https://transfer.actions.globus.org/transfer/",
             "Parameters": {
-                "source_endpoint_id.$": "$.data_store_ep_id",
-                "destination_endpoint_id.$": "$.rev",
+                "source_endpoint.$": "$.data_store_ep_id",
+                "destination_endpoint.$": "$.rev",
                 "transfer_items": [
                     {
                         "source_path.$": "$.input",
@@ -34,10 +34,10 @@
         "main_sorted_transfer": {
             "Comment": "Transfer a input to sorted step",
             "Type": "Action",
-            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "ActionUrl": "https://transfer.actions.globus.org/transfer/",
             "Parameters": {
-                "source_endpoint_id.$": "$.data_store_ep_id",
-                "destination_endpoint_id.$": "$.sorted",
+                "source_endpoint.$": "$.data_store_ep_id",
+                "destination_endpoint.$": "$.sorted",
                 "transfer_items": [
                     {
                         "source_path.$": "$.reverse_sort",
@@ -53,10 +53,10 @@
         "rev_sorted_transfer": {
             "Comment": "Transfer a directory to datastore",
             "Type": "Action",
-            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "ActionUrl": "https://transfer.actions.globus.org/transfer/",
             "Parameters": {
-                "source_endpoint_id.$": "$.rev",
-                "destination_endpoint_id.$": "$.sorted",
+                "source_endpoint.$": "$.rev",
+                "destination_endpoint.$": "$.sorted",
                 "transfer_items": [
                     {
                         "source_path.$": "$.output",
@@ -85,10 +85,10 @@
         "sorted_main_transfer": {
             "Comment": "Transfer output back to datastore",
             "Type": "Action",
-            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "ActionUrl": "https://transfer.actions.globus.org/transfer/",
             "Parameters": {
-                "source_endpoint_id.$": "$.sorted",
-                "destination_endpoint_id.$": "$.data_store_ep_id",
+                "source_endpoint.$": "$.sorted",
+                "destination_endpoint.$": "$.data_store_ep_id",
                 "transfer_items": [
                     {
                         "source_path.$": "$.output",

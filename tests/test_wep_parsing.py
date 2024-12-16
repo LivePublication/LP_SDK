@@ -109,10 +109,10 @@ def test_parse_transfer_state(input_data):
     transfer_state = {
             "Comment": "Transfer a file or directory in Globus",
             "Type": "Action",
-            "ActionUrl": "https://actions.automate.globus.org/transfer/transfer",
+            "ActionUrl": "https://transfer.actions.globus.org/transfer/",
             "Parameters": {
-                "source_endpoint_id.$": "$.input.to_compute_transfer_source_endpoint_id",
-                "destination_endpoint_id.$": "$.input.to_compute_transfer_destination_endpoint_id",
+                "source_endpoint.$": "$.input.to_compute_transfer_source_endpoint_id",
+                "destination_endpoint.$": "$.input.to_compute_transfer_destination_endpoint_id",
                 "transfer_items": [
                     {
                         "source_path.$": "$.input.to_compute_transfer_source_path",
