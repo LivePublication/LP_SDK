@@ -1,6 +1,7 @@
 import json
 import shutil
 import tempfile
+import pytest
 from collections import defaultdict
 from functools import partial
 from pathlib import Path
@@ -284,6 +285,7 @@ def _parse_wep(wep: dict, main_endpoint: str):
     return step_info, param_links
 
 
+@pytest.mark.skip("This was TDD code, and no longer makes sense to maintain, as CWL provenance from a WEP is not useful")
 def test_prov_crate_from_wep():
     """
     Testing/TDD of tooling to recreate the example provenance crate from https://www.researchobject.org/workflow-run-crate/profiles/provenance_run_crate
@@ -298,7 +300,7 @@ def test_prov_crate_from_wep():
 
         # Build crate from WEP file
         crate = LpProvCrate(d)
-        crate.build_from_wep(input_wep, partial(_parse_wep, main_endpoint='main'))
+        crate.build_from_wep(input_wep, partial(_parse_wep, main_endpoint='data_store_ep_id'))
 
         # TODO: Hacks to handle things that don't make sense in globus
         ent = crate.crate.get("WEP.json#main/input")

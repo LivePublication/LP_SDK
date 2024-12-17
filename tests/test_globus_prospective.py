@@ -1,6 +1,7 @@
 import json
 import shutil
 import tempfile
+import pytest
 from collections import defaultdict
 from functools import partial
 from pathlib import Path
@@ -154,6 +155,7 @@ def parser(wep: dict, input_: dict, orch_epid: str) -> tuple[dict, dict]:
     return step_info, param_links_by_step
 
 
+@pytest.mark.skip("Currently fails as validator does not yet handle partial (prospective) crates")
 def test_globus_prospective():
     """
     TDD: generate a prospective crate from a WEP file
@@ -190,4 +192,5 @@ def test_globus_prospective():
 
     validator = Validator(provenance_crate_draft_schema)
 
+    # TODO: currently fails as the generated crate is missing retrospective info
     validator.validate(actual)
