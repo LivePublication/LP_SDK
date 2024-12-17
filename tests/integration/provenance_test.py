@@ -1,3 +1,4 @@
+import datetime
 import json
 from pathlib import Path
 from pprint import pprint
@@ -117,6 +118,16 @@ if __name__ == '__main__':
     test_client.sync_flow()
     test_client.flows_manager.register_flow()
     flow_id = test_client.flows_manager.get_flow_id()
+
+    # Check if flow more than 30 days old + not subscribed. If so delete and re-register
+    flow_details = test_client.flows_manager.flows_client.get_flow(flow_id)
+    date_created = datetime.datetime.fromisoformat(flow_details['created_at'])
+    flow_subscription = flow_details['subscription_id']
+    if (datetime.datetime.now(tz=datetime.timezone.utc) - date_created).days >= 30 and not flow_subscription:
+        print(f"Deleting flow {flow_id} as it is more than 30 days old and not subscribed")
+        test_client.flows_manager.flows_client.delete_flow(flow_id)
+        test_client.flows_manager.register_flow()
+        flow_id = test_client.flows_manager.get_flow_id()
 
     # Define input
     _input = {
