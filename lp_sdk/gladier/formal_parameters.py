@@ -7,13 +7,11 @@ class FormalParameter:
     def __repr__(self):
         return f'FormalParameter({self.name}, {self.type})'
 
-    @property
-    def input(self):
-        return self, 'input'
+    def input(self, default: object = None):
+        return self, 'input', default
 
-    @property
-    def output(self):
-        return self, 'output'
+    def output(self, default: object = None):
+        return self, 'output', default
 
 
 class FileFormalParameter(FormalParameter):
@@ -24,3 +22,9 @@ class FileFormalParameter(FormalParameter):
 
     def __repr__(self):
         return f'FileFormalParameter({self.name}, {self.format})'
+
+    def input(self, path: str):
+        return self, 'input', path
+
+    def output(self, path: str):
+        return self, 'output', path

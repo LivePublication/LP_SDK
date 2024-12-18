@@ -31,8 +31,8 @@ class ToolA(ProvenanceBaseTool):
 
     parameter_mapping = {
         'FuncA': {
-            'args': [a.input],
-            'returns': [b.output]
+            'args': [a.input()],
+            'returns': [b.output()]
         }
     }
 
@@ -43,7 +43,7 @@ class ToolB(ProvenanceBaseTool):
 
     parameter_mapping = {
         'FuncB': {
-            'args': [b.input, c.input, d.output],
+            'args': [b.input(), c.input('intput.txt'), d.output('output.txt')],
             'returns': []
         }
     }
@@ -55,7 +55,7 @@ class ToolC(ProvenanceBaseTool):
 
     parameter_mapping = {
         'FuncC': {
-            'args': [d.input, e.output],
+            'args': [d.input('input.txt'), e.output('output.txt')],
             'returns': []
         }
     }

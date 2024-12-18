@@ -158,9 +158,9 @@ class ProvenanceBaseClient(GladierBaseClient):
 
         # Get list of unique FPs
         unique_formal_params = []
-        for key, value in tool_params.items():
-            fps = value.get('args', []) + value.get('returns', [])
-            for name, in_out in fps:
+        for key, params in tool_params.items():
+            fps = params.get('args', []) + params.get('returns', [])
+            for name, in_out, value in fps:
                 # TODO: handle FPs that aren't of type FormalParameter
                 if name not in unique_formal_params:
                     unique_formal_params.append(name)
@@ -180,7 +180,7 @@ class ProvenanceBaseClient(GladierBaseClient):
             # Identify which functions use this FP
             for func in tool_params.keys():
                 usage = tool_params[func].get('args', []) + tool_params[func].get('returns', [])
-                for name, in_out in usage:
+                for name, in_out, value in usage:
                     if name == fp:
                         details[in_out].append(func)
 
