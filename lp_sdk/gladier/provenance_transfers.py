@@ -23,14 +23,16 @@ class DistCrateTransfer(Transfer):
     ]
 
     def __init__(self, func_name: str):
+        func_name = get_upper_camel_case(func_name)
         alias = f'_provenance_{func_name}'  # TODO: should be camel case
         super().__init__(alias, StateSuffixVariablePrefix)
         # TODO: we're making assumptions about both the function name, and it's ResultPath
         #   this is currently necessary as we don't have access to the previous state in get_flow_definition()
-        self.func_name = get_upper_camel_case(func_name)
+        self.func_name = func_name
 
     def get_flow_definition(self) -> Mapping[str, Any]:
         flow_definition = super().get_flow_definition()
+        flow_definition['Comment'] = f"Transfer Dist Step crate for {self.func_name} back to the orchestration server"
         for state_name, state_data in flow_definition['States'].items():
             state_data['ResultPath'] = f'$.{state_name}'
             transfer_parameters = state_data['Parameters']
