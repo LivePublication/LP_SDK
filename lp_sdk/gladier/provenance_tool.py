@@ -8,6 +8,8 @@ from gladier.utils.name_generation import get_compute_flow_state_name
 
 
 class ProvenanceBaseTool(GladierBaseTool):
+    parameter_mapping = {}
+
     def get_function_inputs(self) -> Mapping[str, type]:
         """
         Get the input parameters for each compute function in the tool.

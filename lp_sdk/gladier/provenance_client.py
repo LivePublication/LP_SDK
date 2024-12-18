@@ -21,6 +21,9 @@ from gladier.managers import ComputeManager, FlowsManager
 from gladier.managers.login_manager import (
     BaseLoginManager,
 )
+
+from lp_sdk.gladier import ProvenanceBaseTool
+from lp_sdk.gladier.formal_parameters import FileFormalParameter
 from lp_sdk.gladier.provenance_transfers import DistCrateTransfer
 
 log = logging.getLogger(__name__)
@@ -137,3 +140,55 @@ class ProvenanceBaseClient(GladierBaseClient):
                 raise gladier.exc.ConfigException(
                     f'{tool} requires flow input value: "{req_input}"'
                 )
+
+    def get_formal_parameters(self) -> list[dict]:
+        """
+        Get the formal parameters for the flow definition.
+        These identify the type/format of each parameter, and the functions to which they are inputs/outputs
+        :return: A list of formal parameters
+        """
+        # Collect FPs from each tool
+        tool_params = {}
+        for tool in self.tools:
+            if isinstance(tool, ProvenanceBaseTool):
+                assert not any([k in tool_params for k in tool.get_required_input()]), (
+                    "Function names should be unique across tools."
+                )  # TODO: this is probably impractical - include tool name in key?
+                tool_params.update(tool.parameter_mapping)
+
+        # Get list of unique FPs
+        unique_formal_params = []
+        for key, value in tool_params.items():
+            fps = value.get('args', []) + value.get('returns', [])
+            for name, in_out in fps:
+                # TODO: handle FPs that aren't of type FormalParameter
+                if name not in unique_formal_params:
+                    unique_formal_params.append(name)
+
+        # Build out details + usage of each FP
+        output = []
+        for fp in unique_formal_params:
+            details = {'name': fp.name, 'input': [], 'output': []}
+
+            if isinstance(fp, FileFormalParameter):
+                details['format'] = fp.format
+                details['type'] = 'file'
+            else:
+                # TODO: validate that fp type matches arg type in signature (probably not here)
+                details['type'] = fp.type.__name__
+
+            # Identify which functions use this FP
+            for func in tool_params.keys():
+                usage = tool_params[func].get('args', []) + tool_params[func].get('returns', [])
+                for name, in_out in usage:
+                    if name == fp:
+                        details[in_out].append(func)
+
+            if len(details['input']) == 0:
+                details.pop('input')
+            if len(details['output']) == 0:
+                details.pop('output')
+
+            output.append(details)
+
+        return output

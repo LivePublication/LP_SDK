@@ -1,8 +1,9 @@
-import inspect
+from pathlib import Path
 
 from gladier import generate_flow_definition
 
 from lp_sdk.gladier import ProvenanceBaseTool, ProvenanceBaseClient
+from lp_sdk.gladier.formal_parameters import FormalParameter, FileFormalParameter
 
 
 def func_a(a: int) -> int:
@@ -15,32 +16,6 @@ def func_b(a: int, b: str, c: str) -> None:
 
 def func_c(b: str, c: str) -> None:
     pass
-
-
-class FormalParameter:
-    def __init__(self, name: str, type_: type):
-        self.name = name
-        self.type = type_
-
-    def __repr__(self):
-        return f'FormalParameter({self.name}, {self.type})'
-
-    @property
-    def input(self):
-        return self, 'input'
-
-    @property
-    def output(self):
-        return self, 'output'
-
-
-class FileFormalParameter(FormalParameter):
-    def __init__(self, name: str, format: str = None):
-        super().__init__(name, str)
-        self.format = format
-
-    def __repr__(self):
-        return f'FileFormalParameter({self.name}, {self.format})'
 
 
 a = FormalParameter('a', int)
@@ -56,8 +31,7 @@ class ToolA(ProvenanceBaseTool):
 
     parameter_mapping = {
         'FuncA': {
-            'inputs': [a.input],
-            'outputs': [],
+            'args': [a.input],
             'returns': [b.output]
         }
     }
@@ -69,8 +43,7 @@ class ToolB(ProvenanceBaseTool):
 
     parameter_mapping = {
         'FuncB': {
-            'inputs': [b.input, c.input, d.output],
-            'outputs': [],
+            'args': [b.input, c.input, d.output],
             'returns': []
         }
     }
@@ -82,8 +55,7 @@ class ToolC(ProvenanceBaseTool):
 
     parameter_mapping = {
         'FuncC': {
-            'inputs': [d.input, e.input],
-            'outputs': [],
+            'args': [d.input, e.output],
             'returns': []
         }
     }
@@ -95,6 +67,21 @@ class Client(ProvenanceBaseClient):
         ToolA,
         ToolB,
         ToolC
+    ]
+
+
+def test_client_formal_param_gen(tmp_path: Path):
+    """Expect ProvenanceBaseClient to generate formal parameters for tools"""
+    client = Client()
+
+    formal_params = client.get_formal_parameters()
+
+    assert formal_params == [
+        {'name': 'a', 'type': 'int', 'input': ['FuncA']},
+        {'name': 'b', 'type': 'int', 'input': ['FuncB'], 'output': ['FuncA']},
+        {'name': 'c', 'type': 'file', 'format': 'txt', 'input': ['FuncB']},
+        {'name': 'd', 'type': 'file', 'format': 'txt', 'input': ['FuncC'], 'output': ['FuncB']},
+        {'name': 'e', 'type': 'file', 'format': 'txt', 'output': ['FuncC']}
     ]
 
 
