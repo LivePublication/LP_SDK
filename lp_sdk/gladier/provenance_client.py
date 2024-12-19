@@ -38,6 +38,7 @@ class ProvenanceBaseClient(GladierBaseClient):
     and functionalities that cater to the requirements of data provenance in a distributed
     environment.
     """
+    orchestration_server_endpoint_id = None
 
     def __init__(
             self,
@@ -198,6 +199,10 @@ class ProvenanceBaseClient(GladierBaseClient):
                 for param, func, path, local_path in tool.file_outputs:
                     outputs[param] = (tool, func, path, local_path)
 
+        # Flow input is static data, so we create a new Transfer subclass for each auto transfer
+        def _subclass_transfer(name):
+            return type(name, (Transfer,), {'flow_input': {'transfer_sync_level': 'checksum'}})
+
         # Build a transfer for each file formal parameter that needs transfered
         transfers = defaultdict(list)
         for fp, uses in inputs.items():
@@ -206,19 +211,21 @@ class ProvenanceBaseClient(GladierBaseClient):
                 if fp in outputs:
                     s_tool, s_func, s_path, s_local_path = outputs[fp]
                     alias = f'_auto_FP_{fp.name}_{s_func}_{func}'
-                    transfer = Transfer(alias, gladier.utils.tool_alias.StateSuffixVariablePrefix)
-                    transfer.flow_input['transfer_source_path'] = local_path
-                    transfer.flow_input['transfer_destination_path'] = s_local_path
-                    transfer.flow_input['transfer_source_endpoint_id'] = tool.storage_id
-                    transfer.flow_input['transfer_destination_endpoint_id'] = s_tool.storage_id
+                    transfer = _subclass_transfer(alias)(alias, gladier.utils.tool_alias.StateSuffixVariablePrefix)
+                    # transfer = Transfer(alias, gladier.utils.tool_alias.StateSuffixVariablePrefix)
+                    transfer.flow_input['transfer_source_path'] = s_local_path
+                    transfer.flow_input['transfer_destination_path'] = local_path
+                    transfer.flow_input['transfer_source_endpoint_id'] = s_tool.storage_id
+                    transfer.flow_input['transfer_destination_endpoint_id'] = tool.storage_id
                     transfer.flow_input['transfer_recursive'] = False
                     transfers[tool].append(transfer)
                 else:  # Transfer from orch node to compute (input)
                     alias = f'_auto_FP_{fp.name}_in_{func}'
-                    transfer = Transfer(alias, gladier.utils.tool_alias.StateSuffixVariablePrefix)
-                    transfer.flow_input['transfer_source_path'] = local_path
-                    transfer.flow_input['transfer_source_endpoint_id'] = tool.storage_id
-                    # TODO: source id/path could potentially be inferred
+                    transfer = _subclass_transfer(alias)(alias, gladier.utils.tool_alias.StateSuffixVariablePrefix)
+                    transfer.flow_input['transfer_destination_path'] = local_path
+                    transfer.flow_input['transfer_destination_endpoint_id'] = tool.storage_id
+                    transfer.flow_input['transfer_source_endpoint_id'] = self.orchestration_server_endpoint_id
+                    transfer.flow_input['transfer_source_path'] = local_path  # TODO: may not be what we want
                     transfer.flow_input['transfer_recursive'] = False
                     transfers[tool].append(transfer)
 
@@ -226,10 +233,11 @@ class ProvenanceBaseClient(GladierBaseClient):
         for fp, (tool, func, path, local_path) in outputs.items():
             if fp not in inputs:
                 alias = f'_auto_FP_{fp.name}_{func}_out'
-                transfer = Transfer(alias, gladier.utils.tool_alias.StateSuffixVariablePrefix)
+                transfer = _subclass_transfer(alias)(alias, gladier.utils.tool_alias.StateSuffixVariablePrefix)
                 transfer.flow_input['transfer_source_path'] = local_path
                 transfer.flow_input['transfer_source_endpoint_id'] = tool.storage_id
-                # TODO: dest id/path could potentially be inferred
+                transfer.flow_input['transfer_destination_path'] = local_path
+                transfer.flow_input['transfer_destination_endpoint_id'] = self.orchestration_server_endpoint_id
                 transfer.flow_input['transfer_recursive'] = False
                 transfers['out'].append(transfer)
 
