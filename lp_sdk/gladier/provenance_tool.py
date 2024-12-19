@@ -6,9 +6,12 @@ from gladier import GladierBaseTool
 from gladier.utils.flow_traversal import iter_flow
 from gladier.utils.name_generation import get_compute_flow_state_name
 
+from lp_sdk.gladier.formal_parameters import FileFormalParameter
+
 
 class ProvenanceBaseTool(GladierBaseTool):
     parameter_mapping = {}
+    storage_id = None
 
     def get_function_inputs(self) -> Mapping[str, type]:
         """
@@ -39,3 +42,30 @@ class ProvenanceBaseTool(GladierBaseTool):
             if state_data['Parameters']['tasks'][0]['payload.$'] == '$.input':
                 state_data['Parameters']['tasks'][0]['payload.$'] = f'$.input.{state_name}'
         return flow_definition
+
+    def localise_path(self, tool_name, path):
+        """
+        Localise a path to a specific tool by prefixing the tool and function names.
+        """
+        # This primarily serves to prevent collisions when compute functions share a node
+        return f'{self.__class__.__name__}/{tool_name}/{path}'
+
+    @property
+    def file_inputs(self):
+        out = []
+        for func, params in self.parameter_mapping.items():
+            for param, in_out, value in params['args']:
+                if isinstance(param, FileFormalParameter) and in_out == 'input':
+                    out.append((param, func, value, self.localise_path(func, value)))
+
+        return out
+
+    @property
+    def file_outputs(self):
+        out = []
+        for func, params in self.parameter_mapping.items():
+            for param, in_out, value in params['args']:
+                if isinstance(param, FileFormalParameter) and in_out == 'output':
+                    out.append((param, func, value, self.localise_path(func, value)))
+
+        return out

@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import types
 import typing as t
+from collections import defaultdict
 from collections.abc import Iterable
 
 import gladier
@@ -21,6 +22,7 @@ from gladier.managers import ComputeManager, FlowsManager
 from gladier.managers.login_manager import (
     BaseLoginManager,
 )
+from gladier_tools.globus import Transfer
 
 from lp_sdk.gladier import ProvenanceBaseTool
 from lp_sdk.gladier.formal_parameters import FileFormalParameter
@@ -82,6 +84,7 @@ class ProvenanceBaseClient(GladierBaseClient):
                     'Ex: ["gladier.tools.hello_world.HelloWorld"]'
                 )
 
+        # Insert dist crate transfers
         for gt in gtools:
             if isinstance(gt, types.FunctionType):
                 for count, func in enumerate(gt.compute_functions):
@@ -92,37 +95,24 @@ class ProvenanceBaseClient(GladierBaseClient):
                     """
                     gtools.insert(gtools.index(gt) + count + 1, DistCrateTransfer(func.__name__))
 
-        self._tools = [
+        resolved_tools = [
             self.get_gladier_defaults_cls(gt, self.alias_class) for gt in gtools
         ]
 
+        # Insert auto transfers
+        auto_transfers = self.detect_transfers(resolved_tools)
+        final_tools = []
+        for tool in resolved_tools:
+            if tool in auto_transfers:
+                final_tools.extend(auto_transfers[tool])
+            final_tools.append(tool)
+
+        final_tools.extend(auto_transfers.get('out', []))
+
+        self._tools = final_tools
+
         return self._tools
 
-    def get_flow_definition(self):
-        """
-        Get the flow definition attached to this class. If the flow definition is an import string,
-        it will automatically load the import string and return the full flow.
-
-        :return: A dict of the Automate Flow definition
-        """
-        try:
-            if isinstance(self.flow_definition, dict):
-                # TODO: may still need to augment dist crate transfers with previous step resultPath
-                return self.flow_definition
-            elif isinstance(self.flow_definition, str):
-                return self.get_gladier_defaults_cls(
-                    self.flow_definition
-                ).flow_definition
-            else:
-                raise gladier.exc.ConfigException(
-                    '"flow_definition" must be a dict or an import string '
-                    "to a sub-class of type "
-                    '"gladier.GladierBaseTool"'
-                )
-        except AttributeError:
-            raise gladier.exc.ConfigException(
-                '"flow_definition" was not set on ' f"{self.__class__.__name__}"
-            )
 
     def check_input(self, tool: GladierBaseTool, flow_input: dict):
         # Override normal behaviour, in order to check input is provided in expected location:
@@ -192,3 +182,55 @@ class ProvenanceBaseClient(GladierBaseClient):
             output.append(details)
 
         return output
+
+    def detect_transfers(self, tools: list[GladierBaseTool]) -> dict[GladierBaseTool, list[GladierBaseTool]]:
+        """
+        Detect transfers between endpoints in the flow definition.
+        :return: A list of transfer states
+        """
+        # Get inputs/outputs to states in the flow
+        inputs = defaultdict(list)
+        outputs = {}
+        for tool in tools:
+            if isinstance(tool, ProvenanceBaseTool):
+                for param, func, path, local_path in tool.file_inputs:
+                    inputs[param].append((tool, func, path, local_path))
+                for param, func, path, local_path in tool.file_outputs:
+                    outputs[param] = (tool, func, path, local_path)
+
+        # Build a transfer for each file formal parameter that needs transfered
+        transfers = defaultdict(list)
+        for fp, uses in inputs.items():
+            for tool, func, path, local_path in uses:
+                # Transfer from one compute node to another
+                if fp in outputs:
+                    s_tool, s_func, s_path, s_local_path = outputs[fp]
+                    alias = f'_auto_FP_{fp.name}_{s_func}_{func}'
+                    transfer = Transfer(alias, gladier.utils.tool_alias.StateSuffixVariablePrefix)
+                    transfer.flow_input['transfer_source_path'] = local_path
+                    transfer.flow_input['transfer_destination_path'] = s_local_path
+                    transfer.flow_input['transfer_source_endpoint_id'] = tool.storage_id
+                    transfer.flow_input['transfer_destination_endpoint_id'] = s_tool.storage_id
+                    transfer.flow_input['transfer_recursive'] = False
+                    transfers[tool].append(transfer)
+                else:  # Transfer from orch node to compute (input)
+                    alias = f'_auto_FP_{fp.name}_in_{func}'
+                    transfer = Transfer(alias, gladier.utils.tool_alias.StateSuffixVariablePrefix)
+                    transfer.flow_input['transfer_source_path'] = local_path
+                    transfer.flow_input['transfer_source_endpoint_id'] = tool.storage_id
+                    # TODO: source id/path could potentially be inferred
+                    transfer.flow_input['transfer_recursive'] = False
+                    transfers[tool].append(transfer)
+
+        # Transfer items that aren't used elsewhere to the orch node (output)
+        for fp, (tool, func, path, local_path) in outputs.items():
+            if fp not in inputs:
+                alias = f'_auto_FP_{fp.name}_{func}_out'
+                transfer = Transfer(alias, gladier.utils.tool_alias.StateSuffixVariablePrefix)
+                transfer.flow_input['transfer_source_path'] = local_path
+                transfer.flow_input['transfer_source_endpoint_id'] = tool.storage_id
+                # TODO: dest id/path could potentially be inferred
+                transfer.flow_input['transfer_recursive'] = False
+                transfers['out'].append(transfer)
+
+        return transfers
