@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it using the metadata below."
 title: "LP_SDK: LivePublication SDK for RO-Crate Provenance Validation"
-version: 1.0.0
+version: 1.0.1
 license: Apache-2.0
 repository-code: "https://github.com/LivePublication/LP_SDK"
 url: "https://github.com/LivePublication/LP_SDK"

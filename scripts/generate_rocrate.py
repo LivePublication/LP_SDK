@@ -11,7 +11,7 @@ DESCRIPTION = (
     "RO-Crate provenance profiles (Workflow Run Crate / Provenance Run Crate patterns), "
     "including prospective and retrospective crate handling for distributed workflows."
 )
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 LICENSE_URL = "https://spdx.org/licenses/Apache-2.0.html"
 REPO_URL = "https://github.com/LivePublication/LP_SDK"
 
@@ -51,6 +51,7 @@ def main() -> None:
         )
     )
     crate.root_dataset["mainEntity"] = software
+    crate.root_dataset["creator"] = [{"@id": author.id}]
 
     paths_to_add = [
         "README.md",
