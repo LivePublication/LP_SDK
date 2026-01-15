@@ -18,14 +18,7 @@
     "LivePublication",
     "provenance",
     "RO-Crate",
-    "validation",
-    "schema",
-    "Workflow Run Crate",
-    "Provenance Run Crate",
-    "Distributed Step Crate",
-    "Distributed Provenance Crate",
-    "DSC",
-    "DPC"
+    "validation"
   ],
   "programmingLanguage": [
     "Python"
