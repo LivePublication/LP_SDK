@@ -1,0 +1,43 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "name": "LP_SDK: LivePublication SDK for RO-Crate Provenance Validation",
+  "description": "A LivePublication SDK providing early validation tooling and helper utilities for RO-Crate provenance profiles (Workflow Run Crate / Provenance Run Crate patterns), including prospective and retrospective crate handling for distributed workflows.",
+  "codeRepository": "https://github.com/LivePublication/LP_SDK",
+  "license": "https://spdx.org/licenses/Apache-2.0.html",
+  "version": "1.0.0",
+  "author": [
+    {
+      "@type": "Person",
+      "givenName": "Augustus",
+      "familyName": "Ellerm",
+      "orcid": "https://orcid.org/0000-0001-8260-231X"
+    }
+  ],
+  "keywords": [
+    "LivePublication",
+    "provenance",
+    "RO-Crate",
+    "validation",
+    "schema",
+    "Workflow Run Crate",
+    "Provenance Run Crate",
+    "Distributed Step Crate",
+    "Distributed Provenance Crate",
+    "DSC",
+    "DPC"
+  ],
+  "programmingLanguage": [
+    "Python"
+  ],
+  "softwareRequirements": [
+    "Python >=3.10",
+    "click==8.1.7",
+    "numpy==1.26.4",
+    "rocrate==0.9.0",
+    "runcrate==0.5.0",
+    "pydantic>=2.7.1",
+    "gladier>=0.9.4",
+    "gladier-tools>=0.5.4"
+  ]
+}

@@ -1,150 +1,52 @@
-# LivePublication SDK (LP_SDK)
+# LP_SDK (Thesis Artifact)
 
-**A Python toolkit for building, validating, and parsing LivePublication RO-Crate profiles**
+## What this repository does
 
-The LivePublication SDK provides developer tools for working with RO-Crate-based workflow provenance following the [Workflow Run Crate](https://www.researchobject.org/workflow-run-crate/) family of profiles.
+LP_SDK is a Python software development kit that provides early validation and helper utilities for LivePublication RO-Crate profiles. It supports building, parsing, and validating provenance crates, including Distributed Step Crates (retrospective step execution) and provenance run crates derived from CWL or Globus Workflow Execution Plan (WEP) definitions. The SDK is explicitly **validation and developer tooling** rather than a full provenance collection system. The SDK targets LivePublication RO-Crate profile instances aligned with Workflow Run Crate / Provenance Run Crate patterns.
 
----
+## Repository structure
 
-## **Crate Validation**
+- `lp_sdk/` — core SDK modules for validation, parsing, prospective and retrospective crate construction, and Gladier/Globus helpers.
+- `tests/` — unit and integration tests, including example data under `tests/data/`.
+- `docs/` — handover notes and development context.
+- `pyproject.toml` / `requirements.txt` — dependencies and CLI entrypoint (`lp-sdk`).
 
-Validate RO-Crate metadata against LivePublication profile requirements:
+## Inputs
 
-- **`lp_sdk/validation/validator.py`**: `Validator` class checks RO-Crate JSON-LD structure, entity types, and required properties.
-- **`lp_sdk/validation/schemas.py`**: `provenance_crate_draft_schema` defines structural rules for Provenance Run Crate profiles.
-- **`lp_sdk/validation/comparator.py`**: `Comparator` class enables fine-grained comparison of partial crates (e.g., validating only prospective provenance without retrospective execution data).
-- **`lp_sdk/validation/util.py`**: Utilities for classifying crate entities into prospective, retrospective, orchestration, and metadata categories.
+- RO-Crate metadata JSON (`ro-crate-metadata.json`) for validation and comparison utilities.
+- Workflow definitions:
+  - CWL files for `LpProvCrate.build_from_cwl()` (prospective provenance).
+  - Globus Flow WEP JSON for `LpProvCrate.build_from_wep()` and the CLI `lp-sdk prospective`.
+- Directories containing RO-Crate metadata for `lp-sdk list-subcrates` and `lp-sdk list-outputs`.
+- Integration tests expect Globus endpoint IDs and authenticated access (see `tests/integration/provenance_test.py`).
 
-### **Crate Building**
+## Outputs
 
-Programmatically construct RO-Crates from workflow definitions:
-
-- **`lp_sdk/provenance/crate.py`**: `LpProvCrate` class builds Provenance Run Crates from CWL (Common Workflow Language) or WEP (Workflow Execution Plan / Globus Flow) definitions
-  - `build_from_cwl()`: Generate prospective provenance from CWL workflow files
-  - `build_from_wep()`: Generate prospective provenance from Globus Flow definitions
-  - Helper methods for adding workflows, tools, steps, formal parameters, and connections
-- **`lp_sdk/retrospective/crate.py`**: `DistStepCrate` class creates "Distributed Step Crates" documenting individual workflow step executions with retrospective provenance (runtime data, files created, agents, environment)
-
-### **Crate Parsing & Introspection**
-
-Load and analyze existing RO-Crates:
-
-- **`lp_sdk/parser/crate.py`**: `get_crates()` recursively discovers and loads RO-Crates from directory trees
-- **`lp_sdk/parser/wep_parsing.py`**: Structured parsing of Globus Flow definitions into typed models (`ComputeState`, `TransferState`, `Task`, etc.)
-- **CLI tools** (see below): Commands for listing subcrates and extracting outputs---
+- Generated RO-Crate metadata JSON for prospective provenance (`ro-crate-metadata.json`).
+- Distributed Step Crates representing retrospective step execution (`lp_sdk/retrospective/`).
 
 ## Quickstart
-
-### Installation
-
 ```bash
-# From PyPI (TODO: confirm if published)
-pip install LP-SDK
-
-# Or from source
 git clone https://github.com/LivePublication/LP_SDK.git
 cd LP_SDK
 pip install -e .
-
-# For development (includes test dependencies)
-pip install -e ".[test]"
 ```
 
-**Requirements**: Python ≥3.10
-
-### CLI Usage
-
-The SDK provides a `lp-sdk` command-line tool:
-
+Minimal CLI smoke check (uses bundled test data):
 ```bash
-# Convert WEP (Globus Flow) to prospective RO-Crate
-lp-sdk prospective -i workflow.json -o ro-crate-metadata.json
-
-# List all RO-Crates in a directory tree
-lp-sdk list-subcrates /path/to/workflow/results/
-
-# List output files from all crates
-lp-sdk list-outputs /path/to/workflow/results/
+lp-sdk list-subcrates tests/data
+lp-sdk list-outputs tests/data
 ```
 
-**Note**: The `prospective` command is experimental and marked in code as subject to change.
-
-### Programmatic Usage: Validating a Crate
-
-```python
-import json
-from lp_sdk.validation.validator import Validator
-from lp_sdk.validation.schemas import provenance_crate_draft_schema
-
-# Load RO-Crate metadata
-with open('ro-crate-metadata.json') as f:
-    crate_data = json.load(f)
-
-# Validate structure
-validator = Validator(provenance_crate_draft_schema)
-try:
-    validator.validate(crate_data)
-    print("✓ Crate is valid")
-except AssertionError as e:
-    print(f"✗ Validation failed: {e}")
-```
-
-### Programmatic Usage: Parsing Existing Crates
-
-```python
-from pathlib import Path
-from lp_sdk.parser.crate import get_crates
-
-# Find all crates in directory tree
-results_dir = Path("/path/to/workflow/results")
-for crate in get_crates(results_dir):
-    print(f"Found crate: {crate.name}")
-  
-    # Access crate metadata
-    print(f"  Main entity: {crate.mainEntity}")
-  
-    # List output files
-    for file in crate.get_by_type('File'):
-        if file.id.startswith('output/'):
-            print(f"  Output: {file.id}")
-```
-
-## Development
-
-### Running Tests
-
+Experimental prospective crate generation:
 ```bash
-# Install dev dependencies
-pip install -e ".[test]"
-
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=lp_sdk --cov-report=html
-
-# Run specific test
-pytest tests/test_validator.py -v
+# TODO: confirm current WEP input expectations for prospective generation
+lp-sdk prospective -i path/to/WEP.json -o ro-crate-metadata.json
 ```
 
-### Linting
+## How to cite
+- GitHub: https://github.com/LivePublication/LP_SDK
+- Zenodo DOI: (minted after release)
 
-```bash
-# Using ruff (configured in pyproject.toml)
-ruff check .
-```
-
-## Contributing
-
-This SDK is under active development:
-
-- Complete automated provenance collection for Globus workflows
-- Implement publication crate assembly from prospective + retrospective crates
-- Enhance WEP formal parameter extraction (use function signatures rather than filename heuristics)
-- Complete validation logic (entity presence, type distribution, semantic checks)
-- Add support for runtime/hardware requirement metadata
-
-**Maintainers**:
-
-- Cornelis Drost (nelis.drost@auckland.ac.nz)
-- Augustus Ellerm (gus.ellerm@pg.canterbury.ac.nz)
+## License
+Apache-2.0. See `LICENSE`.

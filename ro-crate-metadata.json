@@ -1,0 +1,124 @@
+{
+    "@context": "https://w3id.org/ro/crate/1.1/context",
+    "@graph": [
+        {
+            "@id": "./",
+            "@type": "Dataset",
+            "datePublished": "2026-01-15",
+            "description": "A LivePublication SDK providing early validation tooling and helper utilities for RO-Crate provenance profiles (Workflow Run Crate / Provenance Run Crate patterns), including prospective and retrospective crate handling for distributed workflows.",
+            "hasPart": [
+                {
+                    "@id": "README.md"
+                },
+                {
+                    "@id": "LICENSE"
+                },
+                {
+                    "@id": "CITATION.cff"
+                },
+                {
+                    "@id": ".zenodo.json"
+                },
+                {
+                    "@id": "codemeta.json"
+                },
+                {
+                    "@id": "pyproject.toml"
+                },
+                {
+                    "@id": "requirements.txt"
+                },
+                {
+                    "@id": "docs/"
+                },
+                {
+                    "@id": "lp_sdk/"
+                },
+                {
+                    "@id": "tests/"
+                },
+                {
+                    "@id": "scripts/"
+                }
+            ],
+            "license": "https://spdx.org/licenses/Apache-2.0.html",
+            "mainEntity": {
+                "@id": "#lp-sdk"
+            },
+            "name": "LP_SDK: LivePublication SDK for RO-Crate Provenance Validation",
+            "version": "1.0.0"
+        },
+        {
+            "@id": "ro-crate-metadata.json",
+            "@type": "CreativeWork",
+            "about": {
+                "@id": "./"
+            },
+            "conformsTo": {
+                "@id": "https://w3id.org/ro/crate/1.1"
+            }
+        },
+        {
+            "@id": "https://orcid.org/0000-0001-8260-231X",
+            "@type": "Person",
+            "name": "Augustus Ellerm"
+        },
+        {
+            "@id": "#lp-sdk",
+            "@type": "SoftwareSourceCode",
+            "author": {
+                "@id": "https://orcid.org/0000-0001-8260-231X"
+            },
+            "codeRepository": "https://github.com/LivePublication/LP_SDK",
+            "description": "A LivePublication SDK providing early validation tooling and helper utilities for RO-Crate provenance profiles (Workflow Run Crate / Provenance Run Crate patterns), including prospective and retrospective crate handling for distributed workflows.",
+            "license": "https://spdx.org/licenses/Apache-2.0.html",
+            "name": "LP_SDK: LivePublication SDK for RO-Crate Provenance Validation",
+            "programmingLanguage": "Python",
+            "version": "1.0.0"
+        },
+        {
+            "@id": "README.md",
+            "@type": "File"
+        },
+        {
+            "@id": "LICENSE",
+            "@type": "File"
+        },
+        {
+            "@id": "CITATION.cff",
+            "@type": "File"
+        },
+        {
+            "@id": ".zenodo.json",
+            "@type": "File"
+        },
+        {
+            "@id": "codemeta.json",
+            "@type": "File"
+        },
+        {
+            "@id": "pyproject.toml",
+            "@type": "File"
+        },
+        {
+            "@id": "requirements.txt",
+            "@type": "File"
+        },
+        {
+            "@id": "docs/",
+            "@type": "Dataset"
+        },
+        {
+            "@id": "lp_sdk/",
+            "@type": "Dataset"
+        },
+        {
+            "@id": "tests/",
+            "@type": "Dataset"
+        },
+        {
+            "@id": "scripts/",
+            "@type": "Dataset"
+        }
+    ]
+}
